@@ -6,7 +6,11 @@
 	<title>Antimatter Dimensions</title>
 	<link rel="icon" type="image/png" href="icon.png">
 	<meta name="Antimatter Dimensions" content="A game about huge numbers and watching them go up." charset="utf-8"/>
-	<script type="text/javascript" src="javascripts/jquery-3.2.1.min.js"></script>
+    <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+    <script src="javascripts/jquery-3.2.1.min.js"></script>
+    <script>if (window.module) module = window.module;</script>
+	<!--<script type="text/javascript" src="javascripts/jquery-3.2.1.min.js"></script>-->
+    <script type="text/javascript" src="javascripts/support/prompt.js"></script>
 	<script type="text/javascript" src="javascripts/notify.js"></script>
 	<link rel="stylesheet" type="text/css" href="stylesheets/styles.css?12">
 	<link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
@@ -34,6 +38,12 @@
 <img id="loading" src="images/Loading.png">
 <div id="snow" style="display: none; "></div>
 <body id="body" style="height: 95vh; " onload="initGame()">
+    <div id="prompt" class="popup prompt">
+        <b id="prompt_msg">Hello, world!</b>
+        <textarea id="prompt_input" style="margin: 0px; height: 60px; width: 240px;"></textarea>
+        <button id="prompt_conf" class="storebtn">Confirm</button>
+        <button id="prompt_cans" class="storebtn">Cancel</button>
+    </div>
 	<div id='ghostlyNewsTicker'><span id='ghostlyNewsTickerText'></span></div>
 	<div style="display:none;position:fixed;left:0;top:0"><textarea id="output" style="color:black; width: 200px; height: 55px;"></textarea></div>
 	<div id="container" class="container" style="color:#4F5957; font-family: Typewriter; text-align:center; font-size: 11px; display:none">
