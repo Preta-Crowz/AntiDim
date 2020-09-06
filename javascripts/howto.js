@@ -107,14 +107,15 @@ function updateSpoilers() {
 }
 
 document.getElementById("importbtn").onclick = function () {
-    var save_data = prompt("Input your save.");
-	save_data = JSON.parse(atob(save_data), function(k, v) { return (v === Infinity) ? "Infinity" : v; });
-	if (!save_data) {
-		alert('could not load the save..');
-		return;
-	}
-	player = save_data;
-	updateSpoilers()
+    prompt("Input your save.", (save_data) => {
+    	save_data = JSON.parse(atob(save_data), function(k, v) { return (v === Infinity) ? "Infinity" : v; });
+    	if (!save_data) {
+    		alert('could not load the save..');
+    		return;
+    	}
+    	player = save_data;
+    	updateSpoilers()
+    });
 };
 
 load_game();

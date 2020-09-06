@@ -511,13 +511,14 @@ function exportSpec() {
 }
 
 function importSpec () {
-  let s = prompt('Enter your spec');
-  let l = s.split('/');
-  for (let i = 1; i <= l.length; i++) {
-    for (let j = 0; j < +l[i - 1]; j++) {
-      if (!buyTimeStudy(i)) break;
-    }
-  }
+  prompt('Enter your spec', (s) => {
+      let l = s.split('/');
+      for (let i = 1; i <= l.length; i++) {
+        for (let j = 0; j < +l[i - 1]; j++) {
+          if (!buyTimeStudy(i)) break;
+        }
+      }
+  });
 }
 
 function exportStudyTree() {
@@ -564,64 +565,83 @@ function exportStudyTree() {
 
 function importStudyTree(input) {
 	onImport = true
-	if (typeof input !== 'string') var input = prompt()
-	onImport = false
-	if (sha512_256(input) == "08b819f253b684773e876df530f95dcb85d2fb052046fa16ec321c65f3330608") giveAchievement("You followed the instructions")
-	if (input === "") return false
-	if (player.boughtDims) {
-		let l = input.split('/');
-		for (let i = 1; i <= l.length; i++) {
-			for (let j = 0; j < +l[i - 1]; j++) {
-				if (!buyTimeStudy(i)) break;
-			}
-		}
-	} else {
-		var studiesToBuy = input.split("|")[0].split(",");
-		var secondSplitPick = 0
-		var laterSecondSplits = []
-		var earlyDLStudies = []
-		var laterDLStudies = []
-		var oldLength = player.timestudy.length
-		if (player.masterystudies) var oldLengthMS = player.masterystudies.length
-		for (i=0; i<studiesToBuy.length; i++) {
-			var study=parseInt(studiesToBuy[i])
-			if ((study<120||study>150||(secondSplitPick<1||study%10==secondSplitPick))&&(study<220||study>240||earlyDLStudies.includes(study+(study%2>0?-1:1)))) {
-				if (study>120&&study<150) secondSplitPick=study%10
-				else if (study>220&&study<240) earlyDLStudies.push(study)
-				if (study>240) buyMasteryStudy("t", study, true)
-				else buyTimeStudy(study, 0, true);
-			} else if (study<150) laterSecondSplits.push(study)
-			else laterDLStudies.push(study)
-		}
-		for (i=0; i<laterSecondSplits.length; i++) buyTimeStudy(laterSecondSplits[i], 0, true)
-		for (i=0; i<laterDLStudies.length; i++) buyTimeStudy(laterDLStudies[i], 0, true)
-		var ec=parseInt(input.split("|")[1])
-		if (ec > 0) {
-			justImported = true;
-			if (ec > 12) {
-				buyMasteryStudy("ec", ec, true)
-				changeMS=true
-			} else document.getElementById("ec"+parseInt(input.split("|")[1])+"unl").click();
-			setTimeout(function(){ justImported = false; }, 100);
-		}
-		if (player.masterystudies.length > oldLengthMS) {
-			updateMasteryStudyCosts()
-			updateMasteryStudyButtons()
-			updateMasteryStudyTextDisplay()
-			drawMasteryTree()
-		}
-		if (player.timestudy.length > oldLength) {
-			updateTimeStudyButtons(true)
-			drawStudyTree()
-		}
-	}
+    loadStudy = (input) => {
+    	onImport = false
+    	if (sha512_256(input) == "08b819f253b684773e876df530f95dcb85d2fb052046fa16ec321c65f3330608") giveAchievement("You followed the instructions")
+    	if (input === "") return false
+    	if (player.boughtDims) {
+    		let l = input.split('/');
+    		for (let i = 1; i <= l.length; i++) {
+    			for (let j = 0; j < +l[i - 1]; j++) {
+    				if (!buyTimeStudy(i)) break;
+    			}
+    		}
+    	} else {
+    		var studiesToBuy = input.split("|")[0].split(",");
+    		var secondSplitPick = 0
+    		var laterSecondSplits = []
+    		var earlyDLStudies = []
+    		var laterDLStudies = []
+    		var oldLength = player.timestudy.length
+    		if (player.masterystudies) var oldLengthMS = player.masterystudies.length
+    		for (i=0; i<studiesToBuy.length; i++) {
+    			var study=parseInt(studiesToBuy[i])
+    			if ((study<120||study>150||(secondSplitPick<1||study%10==secondSplitPick))&&(study<220||study>240||earlyDLStudies.includes(study+(study%2>0?-1:1)))) {
+    				if (study>120&&study<150) secondSplitPick=study%10
+    				else if (study>220&&study<240) earlyDLStudies.push(study)
+    				if (study>240) buyMasteryStudy("t", study, true)
+    				else buyTimeStudy(study, 0, true);
+    			} else if (study<150) laterSecondSplits.push(study)
+    			else laterDLStudies.push(study)
+    		}
+    		for (i=0; i<laterSecondSplits.length; i++) buyTimeStudy(laterSecondSplits[i], 0, true)
+    		for (i=0; i<laterDLStudies.length; i++) buyTimeStudy(laterDLStudies[i], 0, true)
+    		var ec=parseInt(input.split("|")[1])
+    		if (ec > 0) {
+    			justImported = true;
+    			if (ec > 12) {
+    				buyMasteryStudy("ec", ec, true)
+    				changeMS=true
+    			} else document.getElementById("ec"+parseInt(input.split("|")[1])+"unl").click();
+    			setTimeout(function(){ justImported = false; }, 100);
+    		}
+    		if (player.masterystudies.length > oldLengthMS) {
+    			updateMasteryStudyCosts()
+    			updateMasteryStudyButtons()
+    			updateMasteryStudyTextDisplay()
+    			drawMasteryTree()
+    		}
+    		if (player.timestudy.length > oldLength) {
+    			updateTimeStudyButtons(true)
+    			drawStudyTree()
+    		}
+    	}
+    };
+    if (typeof input !== 'string') prompt("", (input) => loadStudy(input));
+    else loadStudy(input);
 };
 
 function new_preset(importing) {
 	onImport=true
+    makepreset = (input) => {
+        onImport = false
+        var placement=1
+        while (poData.includes(placement)) placement++
+        presets[placement]={preset:input}
+        localStorage.setItem(btoa(presetPrefix+placement),btoa(JSON.stringify(presets[placement])))
+        poData.push(placement)
+        latestRow=document.getElementById("presets").insertRow(loadedPresets)
+        latestRow.innerHTML=getPresetLayout(placement)
+        loadedPresets++
+        changePresetTitle(placement, loadedPresets)
+        localStorage.setItem(metaSaveId,btoa(JSON.stringify(metaSave)))
+        $.notify("Preset created", "info")
+    }
 	if (importing) {
-		var input=prompt()
-		if (input === null) return
+		input=prompt("", (input) => {
+            if (input === null) return;
+            makepreset(input);
+        });
 	} else if (player.boughtDims) {
 		let l = [];
 		for (let i = 1; i < 7; i++) {
@@ -630,6 +650,7 @@ function new_preset(importing) {
 			}
 		}
 		var input=l.join('/');
+        makepreset(input);
 	} else {
 		var mtsstudies=[]
 		if (player.masterystudies) {
@@ -639,19 +660,8 @@ function new_preset(importing) {
 			}
 		}
 		var input=player.timestudy.studies+(mtsstudies.length>0?","+mtsstudies:"")+"|"+player.eternityChallUnlocked
+        makepreset(input);
 	}
-	onImport = false
-	var placement=1
-	while (poData.includes(placement)) placement++
-	presets[placement]={preset:input}
-	localStorage.setItem(btoa(presetPrefix+placement),btoa(JSON.stringify(presets[placement])))
-	poData.push(placement)
-	latestRow=document.getElementById("presets").insertRow(loadedPresets)
-	latestRow.innerHTML=getPresetLayout(placement)
-	loadedPresets++
-	changePresetTitle(placement, loadedPresets)
-	localStorage.setItem(metaSaveId,btoa(JSON.stringify(metaSave)))
-	$.notify("Preset created", "info")
 }
 
 //Smart presets
@@ -719,12 +729,14 @@ function delete_preset(presetId) {
 }
 
 function rename_preset(id) {
-	presets[id].title=prompt("Input a new name of this preset. It is necessary to rename it into related names!")
-	localStorage.setItem(btoa(presetPrefix+id),btoa(JSON.stringify(presets[id])))
-	placement=1
-	while (poData[placement-1]!=id) placement++
-	changePresetTitle(id, placement)
-	$.notify("Preset renamed", "info")
+	prompt("Input a new name of this preset. It is necessary to rename it into related names!", (name) => {
+        presets[id].title = name;
+        localStorage.setItem(btoa(presetPrefix+id),btoa(JSON.stringify(presets[id])))
+        placement=1
+        while (poData[placement-1]!=id) placement++
+        changePresetTitle(id, placement)
+        $.notify("Preset renamed", "info")
+    });
 }
 
 function move_preset(id,offset) {

@@ -2572,9 +2572,35 @@ function changeAPEternities(id) {
 }
 
 function createAP(importing, type) {
+    _createAP = (input) => {
+        var id=1
+        if (type) id=type
+        else {
+            while (player.eternityBuyer.presets.order.includes(id)) id++
+            player.eternityBuyer.presets.order.push(id)
+        }
+        player.eternityBuyer.presets[id]={title:"",preset:input,length:1,on:true}
+        if (type=="grind") {
+            document.getElementById("apGrind").innerHTML = '<b id="apnamegrind"></b><br>(Eternitying with <1% log(EP) gain selects this)<br><button class="storebtn" onclick="renameAP(\'grind\')">Rename</button> <button class="storebtn" onclick="replaceAP(\'grind\')">Replace</button> <button id="apdisablegrind" class="storebtn" onclick="disableAP(\'grind\')"></button>'
+            changeAPOptions('grind')
+            $.notify("Grind preset created", "info")
+        } else if (type) {
+            document.getElementById("apDil").innerHTML = '<b id="apnamedil"></b><br>(Dilating time selects this)<br><button class="storebtn" onclick="renameAP(\'dil\')">Rename</button> <button class="storebtn" onclick="replaceAP(\'dil\')">Replace</button> <button id="apdisabledil" class="storebtn" onclick="disableAP(\'dil\')"></button>'
+            changeAPOptions('dil')
+            $.notify("Dilation preset created", "info")
+        } else {
+            if (loadedAPs+1==player.eternityBuyer.presets.order.length) {
+                let latestRow=document.getElementById("automatedPresets").insertRow(loadedAPs)
+                latestRow.innerHTML='<td id="apselected'+loadedAPs+'"></td><td><b id="apname'+loadedAPs+'"></b><br># of eternities: <input id="apeternities'+loadedAPs+'" type="text" onchange="changeAPEternities('+loadedAPs+')" value=2></input><button class="storebtn" onclick="selectNextAP('+loadedAPs+')">Select next</button> <button class="storebtn" onclick="moveAP('+loadedAPs+', -1)">Move up</button> <button class="storebtn" onclick="moveAP('+loadedAPs+', 1)">Move down</button> <button class="storebtn" onclick="renameAP('+loadedAPs+')">Rename</button> <button class="storebtn" onclick="replaceAP('+loadedAPs+')">Replace</button> <button id="apdisable'+loadedAPs+'" class="storebtn" onclick="disableAP('+loadedAPs+')"></button> <button class="storebtn"onclick="removeAP('+loadedAPs+')">Remove</button></td>'
+                changeAPOptions(id,loadedAPs)
+                loadedAPs++
+            }
+            $.notify("Preset #"+player.eternityBuyer.presets.order.length+" created", "info")
+        }
+    }
 	if (importing) {
 		onImport=true
-		var input=prompt()
+		prompt("", _createAP)
 		if (input===null) return
 		onImport=false
 	} else {
@@ -2584,30 +2610,7 @@ function createAP(importing, type) {
 			if (t) mtsstudies.push(t)
 		}
 		var input=player.timestudy.studies+(mtsstudies.length>0?","+mtsstudies:"")+"|"+player.eternityChallUnlocked
-	}
-	var id=1
-	if (type) id=type
-	else {
-		while (player.eternityBuyer.presets.order.includes(id)) id++
-		player.eternityBuyer.presets.order.push(id)
-	}
-	player.eternityBuyer.presets[id]={title:"",preset:input,length:1,on:true}
-	if (type=="grind") {
-		document.getElementById("apGrind").innerHTML = '<b id="apnamegrind"></b><br>(Eternitying with <1% log(EP) gain selects this)<br><button class="storebtn" onclick="renameAP(\'grind\')">Rename</button> <button class="storebtn" onclick="replaceAP(\'grind\')">Replace</button> <button id="apdisablegrind" class="storebtn" onclick="disableAP(\'grind\')"></button>'
-		changeAPOptions('grind')
-		$.notify("Grind preset created", "info")
-	} else if (type) {
-		document.getElementById("apDil").innerHTML = '<b id="apnamedil"></b><br>(Dilating time selects this)<br><button class="storebtn" onclick="renameAP(\'dil\')">Rename</button> <button class="storebtn" onclick="replaceAP(\'dil\')">Replace</button> <button id="apdisabledil" class="storebtn" onclick="disableAP(\'dil\')"></button>'
-		changeAPOptions('dil')
-		$.notify("Dilation preset created", "info")
-	} else {
-		if (loadedAPs+1==player.eternityBuyer.presets.order.length) {
-			let latestRow=document.getElementById("automatedPresets").insertRow(loadedAPs)
-			latestRow.innerHTML='<td id="apselected'+loadedAPs+'"></td><td><b id="apname'+loadedAPs+'"></b><br># of eternities: <input id="apeternities'+loadedAPs+'" type="text" onchange="changeAPEternities('+loadedAPs+')" value=2></input><button class="storebtn" onclick="selectNextAP('+loadedAPs+')">Select next</button> <button class="storebtn" onclick="moveAP('+loadedAPs+', -1)">Move up</button> <button class="storebtn" onclick="moveAP('+loadedAPs+', 1)">Move down</button> <button class="storebtn" onclick="renameAP('+loadedAPs+')">Rename</button> <button class="storebtn" onclick="replaceAP('+loadedAPs+')">Replace</button> <button id="apdisable'+loadedAPs+'" class="storebtn" onclick="disableAP('+loadedAPs+')"></button> <button class="storebtn"onclick="removeAP('+loadedAPs+')">Remove</button></td>'
-			changeAPOptions(id,loadedAPs)
-			loadedAPs++
-		}
-		$.notify("Preset #"+player.eternityBuyer.presets.order.length+" created", "info")
+        _createAP(input)
 	}
 }
 
@@ -2639,39 +2642,41 @@ function moveAP(id, offset) {
 
 function renameAP(id) {
 	onImport=true
-	var input=prompt()
-	if (input===null) return
-	onImport=false
-	if (id=="grind") {
-		player.eternityBuyer.presets.grind.title=input
-		changeAPOptions('grind')
-		$.notify("Grind preset renamed", "info")
-	} else if (id=="dil") {
-		player.eternityBuyer.presets.dil.title=input
-		changeAPOptions('dil')
-		$.notify("Dilation preset renamed", "info")
-	} else {
-		player.eternityBuyer.presets[player.eternityBuyer.presets.order[id]].title=input
-		changeAPOptions(player.eternityBuyer.presets.order[id],id)
-		$.notify("Preset #"+(id+1)+" renamed", "info")
-	}
+	prompt("", (input) => {
+    	if (input===null) return
+    	onImport=false
+    	if (id=="grind") {
+    		player.eternityBuyer.presets.grind.title=input
+    		changeAPOptions('grind')
+    		$.notify("Grind preset renamed", "info")
+    	} else if (id=="dil") {
+    		player.eternityBuyer.presets.dil.title=input
+    		changeAPOptions('dil')
+    		$.notify("Dilation preset renamed", "info")
+    	} else {
+    		player.eternityBuyer.presets[player.eternityBuyer.presets.order[id]].title=input
+    		changeAPOptions(player.eternityBuyer.presets.order[id],id)
+    		$.notify("Preset #"+(id+1)+" renamed", "info")
+    	}
+    });
 }
 
 function replaceAP(id) {
 	onImport=true
-	var input=prompt()
-	if (input===null) return
-	onImport=false
-	if (id=="grind") {
-		player.eternityBuyer.presets.grind.preset=input
-		$.notify("Grind preset replaced", "info")
-	} else if (id=="dil") {
-		player.eternityBuyer.presets.dil.preset=input
-		$.notify("Dilation preset replaced", "info")
-	} else {
-		player.eternityBuyer.presets[player.eternityBuyer.presets.order[id]].preset=input
-		$.notify("Preset #"+(id+1)+" replaced", "info")
-	}
+	prompt("", (input) => {
+    	if (input===null) return
+    	onImport=false
+    	if (id=="grind") {
+    		player.eternityBuyer.presets.grind.preset=input
+    		$.notify("Grind preset replaced", "info")
+    	} else if (id=="dil") {
+    		player.eternityBuyer.presets.dil.preset=input
+    		$.notify("Dilation preset replaced", "info")
+    	} else {
+    		player.eternityBuyer.presets[player.eternityBuyer.presets.order[id]].preset=input
+    		$.notify("Preset #"+(id+1)+" replaced", "info")
+    	}
+    });
 }
 
 function disableAP(id) {

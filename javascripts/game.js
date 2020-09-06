@@ -4834,114 +4834,115 @@ function import_save(type) {
         }
     }
     onImport = true;
-    var save_data = prompt("Input your save. " + (type == "new" ? "" : "(" + (type == metaSave.current ? "your current save file" : "save #" + placement) + " will be overwritten!)"));
-    onImport = false;
-    if (save_data.constructor !== String) {
-      save_data = "";
-    }
-    if (sha512_256(save_data.replace(/\s/g, '').toUpperCase()) === "80b7fdc794f5dfc944da6a445a3f21a2d0f7c974d044f2ea25713037e96af9e3") {
-        document.getElementById("body").style.animation = "barrelRoll 5s 1";
-        giveAchievement("Do a barrel roll!");
-        setTimeout(function() {
-            document.getElementById("body").style.animation = "";
-        }, 5000)
-    }
-    if (sha512_256(save_data.replace(/\s/g, '').toUpperCase()) === "857876556a230da15fe1bb6f410ca8dbc9274de47c1a847c2281a7103dd2c274") giveAchievement("So do I");
-    if (sha512_256(save_data) === "de24687ee7ba1acd8f5dc8f71d41a3d4b7f14432fff53a4d4166e7eea48a88c0") {
-        player.options.theme = "S1";
-        player.options.secretThemeKey = save_data;
-        setTheme(player.options.theme);
-    } else if (sha512_256(save_data) === "76269d18c05c9ebec8a990a096cee046dea042a0421f8ab81d17f34dd1cdbdbf") {
-        player.options.theme = "S2";
-        player.options.secretThemeKey = save_data;
-        setTheme(player.options.theme);
-    } else if (sha512_256(save_data) === "d764e9a1d1e18081be19f3483b537ae1159ab40d10e096df1d9e857d68d6ba7a") {
-        player.options.theme = "S3";
-        player.options.secretThemeKey = save_data;
-        setTheme(player.options.theme);
-    } else if (sha512_256(save_data) === "ae0199482ecfa538a03eb37c67866e67a11f1832516c26c7939e971e514d40c5") {
-        player.options.theme = "S4";
-        player.options.secretThemeKey = save_data;
-        setTheme(player.options.theme);
-    } else if (sha512_256(save_data) === "7a668b64cdfe1bcdf7a38d3858429ee21290268de66b9784afba27dc5225ce28") {
-        player.options.theme = "S5";
-        player.options.secretThemeKey = save_data;
-        setTheme(player.options.theme);
-    } else if (sha512_256(save_data) === "4f82333af895f5c89e6b2082a7dab5a35b964614e74908961fe915cefca1c6d0") {
-        player.options.theme = "S6";
-        player.options.secretThemeKey = save_data;
-        setTheme(player.options.theme);
-    } else {
-        var decoded_save_data = JSON.parse(atob(save_data, function(k, v) {
-            return (v === Infinity) ? "Infinity" : v;
-        }));
-        if (!verify_save(decoded_save_data)) {
-            forceHardReset = true;
-            reset_game();
-            forceHardReset = false;
-            return;
-        } else if (!decoded_save_data || !save_data) {
-            alert('could not load the save..');
-            return;
+    prompt("Input your save. " + (type == "new" ? "" : "(" + (type == metaSave.current ? "your current save file" : "save #" + placement) + " will be overwritten!)"), (save_data) => {
+        onImport = false;
+        if (save_data.constructor !== String) {
+          save_data = "";
         }
-        /*
-        //Live-server only
-        let ghostify_data=decoded_save_data.ghostify
-        if (ghostify_data&&ghostify_data.wzb&&ghostify_data.wzb.unlReal!==undefined&&ghostify_data.wzb.unl!=ghostify_data.wzb.unlReal) {
-        	alert('You are not allowed to import this save.')
-        	return
+        if (sha512_256(save_data.replace(/\s/g, '').toUpperCase()) === "80b7fdc794f5dfc944da6a445a3f21a2d0f7c974d044f2ea25713037e96af9e3") {
+            document.getElementById("body").style.animation = "barrelRoll 5s 1";
+            giveAchievement("Do a barrel roll!");
+            setTimeout(function() {
+                document.getElementById("body").style.animation = "";
+            }, 5000)
         }
-        */
-        if (type == metaSave.current) {
-            clearInterval(gameLoopIntervalId);
-            infiniteCheck2 = false;
-            player = decoded_save_data;
-            if (detectInfinite()) {
-              infiniteDetected = true;
-            }
-            if (!game_loaded) {
-                set_save(metaSave.current, player);
-                document.location.reload(true);
-                return;
-            }
-            onLoad();
-            if (infiniteDetected) {
-                if (document.getElementById("welcome").style.display != "flex") {
-                  document.getElementById("welcome").style.display = "flex";
-                }
-                document.getElementById("welcomeMessage").innerHTML = "Because you imported a save that has an Infinite bug in it, saving is disabled. You're so lucky that you can easily get your save back. :D";
-            }
-            startInterval();
-        } else if (type == "new") {
-            var newSaveId = 1;
-            while (metaSave.saveOrder.includes(newSaveId)) {
-              newSaveId++;
-            }
-            metaSave.saveOrder.push(newSaveId);
-            localStorage.setItem(btoa(savePrefix + newSaveId), save_data);
-            if (!game_loaded) {
-                metaSave.current = newSaveId;
-                localStorage.setItem(metaSaveId, btoa(JSON.stringify(metaSave)));
-                document.location.reload(true);
-                return;
-            }
-            latestRow = document.getElementById("saves").insertRow(loadedSaves);
-            latestRow.innerHTML = getSaveLayout(newSaveId);
-            loadedSaves++;
-            changeSaveDesc(newSaveId, loadedSaves);
-            localStorage.setItem(metaSaveId, btoa(JSON.stringify(metaSave)));
+        if (sha512_256(save_data.replace(/\s/g, '').toUpperCase()) === "857876556a230da15fe1bb6f410ca8dbc9274de47c1a847c2281a7103dd2c274") giveAchievement("So do I");
+        if (sha512_256(save_data) === "de24687ee7ba1acd8f5dc8f71d41a3d4b7f14432fff53a4d4166e7eea48a88c0") {
+            player.options.theme = "S1";
+            player.options.secretThemeKey = save_data;
+            setTheme(player.options.theme);
+        } else if (sha512_256(save_data) === "76269d18c05c9ebec8a990a096cee046dea042a0421f8ab81d17f34dd1cdbdbf") {
+            player.options.theme = "S2";
+            player.options.secretThemeKey = save_data;
+            setTheme(player.options.theme);
+        } else if (sha512_256(save_data) === "d764e9a1d1e18081be19f3483b537ae1159ab40d10e096df1d9e857d68d6ba7a") {
+            player.options.theme = "S3";
+            player.options.secretThemeKey = save_data;
+            setTheme(player.options.theme);
+        } else if (sha512_256(save_data) === "ae0199482ecfa538a03eb37c67866e67a11f1832516c26c7939e971e514d40c5") {
+            player.options.theme = "S4";
+            player.options.secretThemeKey = save_data;
+            setTheme(player.options.theme);
+        } else if (sha512_256(save_data) === "7a668b64cdfe1bcdf7a38d3858429ee21290268de66b9784afba27dc5225ce28") {
+            player.options.theme = "S5";
+            player.options.secretThemeKey = save_data;
+            setTheme(player.options.theme);
+        } else if (sha512_256(save_data) === "4f82333af895f5c89e6b2082a7dab5a35b964614e74908961fe915cefca1c6d0") {
+            player.options.theme = "S6";
+            player.options.secretThemeKey = save_data;
+            setTheme(player.options.theme);
         } else {
-            set_save(type, decoded_save_data);
-            if (!game_loaded) {
-                metaSave.current = type;
-                localStorage.setItem(metaSaveId, btoa(JSON.stringify(metaSave)));
-                document.location.reload(true);
+            var decoded_save_data = JSON.parse(atob(save_data, function(k, v) {
+                return (v === Infinity) ? "Infinity" : v;
+            }));
+            if (!verify_save(decoded_save_data)) {
+                forceHardReset = true;
+                reset_game();
+                forceHardReset = false;
+                return;
+            } else if (!decoded_save_data || !save_data) {
+                alert('could not load the save..');
                 return;
             }
-            changeSaveDesc(type, placement);
-            $.notify("Save #" + placement + " imported", "info");
+            /*
+            //Live-server only
+            let ghostify_data=decoded_save_data.ghostify
+            if (ghostify_data&&ghostify_data.wzb&&ghostify_data.wzb.unlReal!==undefined&&ghostify_data.wzb.unl!=ghostify_data.wzb.unlReal) {
+            	alert('You are not allowed to import this save.')
+            	return
+            }
+            */
+            if (type == metaSave.current) {
+                clearInterval(gameLoopIntervalId);
+                infiniteCheck2 = false;
+                player = decoded_save_data;
+                if (detectInfinite()) {
+                  infiniteDetected = true;
+                }
+                if (!game_loaded) {
+                    set_save(metaSave.current, player);
+                    document.location.reload(true);
+                    return;
+                }
+                onLoad();
+                if (infiniteDetected) {
+                    if (document.getElementById("welcome").style.display != "flex") {
+                      document.getElementById("welcome").style.display = "flex";
+                    }
+                    document.getElementById("welcomeMessage").innerHTML = "Because you imported a save that has an Infinite bug in it, saving is disabled. You're so lucky that you can easily get your save back. :D";
+                }
+                startInterval();
+            } else if (type == "new") {
+                var newSaveId = 1;
+                while (metaSave.saveOrder.includes(newSaveId)) {
+                  newSaveId++;
+                }
+                metaSave.saveOrder.push(newSaveId);
+                localStorage.setItem(btoa(savePrefix + newSaveId), save_data);
+                if (!game_loaded) {
+                    metaSave.current = newSaveId;
+                    localStorage.setItem(metaSaveId, btoa(JSON.stringify(metaSave)));
+                    document.location.reload(true);
+                    return;
+                }
+                latestRow = document.getElementById("saves").insertRow(loadedSaves);
+                latestRow.innerHTML = getSaveLayout(newSaveId);
+                loadedSaves++;
+                changeSaveDesc(newSaveId, loadedSaves);
+                localStorage.setItem(metaSaveId, btoa(JSON.stringify(metaSave)));
+            } else {
+                set_save(type, decoded_save_data);
+                if (!game_loaded) {
+                    metaSave.current = type;
+                    localStorage.setItem(metaSaveId, btoa(JSON.stringify(metaSave)));
+                    document.location.reload(true);
+                    return;
+                }
+                changeSaveDesc(type, placement);
+                $.notify("Save #" + placement + " imported", "info");
+            }
         }
-    }
+    });
 }
 
 //TODO: define what function does

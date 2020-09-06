@@ -2217,32 +2217,33 @@ function rename_save(id) {
 		var placement=1
 		while (metaSave.saveOrder[placement-1]!=id) placement++
 	}
-	var save_name = prompt("Input a new name of "+((metaSave.current == id || id === undefined) ? "your current save" : "save #" + placement)+". It is necessary to rename it into related names! Leave blank to reset the save's name.")
-	if (save_name === null) return
-	if (metaSave.current == id || id === undefined) {
-		player.aarexModifications.save_name = save_name
-		document.getElementById("rename").innerHTML = "<p style='font-size:15px'>Rename</p>Name: "+(player.aarexModifications.save_name?player.aarexModifications.save_name:"Save #" + savePlacement)
-	} else {
-		var temp_save = get_save(id)
-		if (!temp_save.aarexModifications) temp_save.aarexModifications={
-			dilationConf: false,
-			offlineProgress: true,
-			autoSave: true,
-			progressBar: true,
-			logRateChange: false,
-			hideProductionTab: true,
-			eternityChallRecords: {},
-			popUpId: 0,
-			tabsSave: {on: false},
-			breakInfinity: false
-        }
-		temp_save.aarexModifications.save_name = save_name
-	}
-	set_save(id, temp_save)
-	placement=1
-	while (metaSave.saveOrder[placement-1]!=id) placement++
-	changeSaveDesc(id, placement)
-	$.notify("Save #"+placement+" renamed", "info")
+	prompt("Input a new name of "+((metaSave.current == id || id === undefined) ? "your current save" : "save #" + placement)+". It is necessary to rename it into related names! Leave blank to reset the save's name.", (save_name) => {
+    	if (save_name === null) return
+    	if (metaSave.current == id || id === undefined) {
+    		player.aarexModifications.save_name = save_name
+    		document.getElementById("rename").innerHTML = "<p style='font-size:15px'>Rename</p>Name: "+(player.aarexModifications.save_name?player.aarexModifications.save_name:"Save #" + savePlacement)
+    	} else {
+    		var temp_save = get_save(id)
+    		if (!temp_save.aarexModifications) temp_save.aarexModifications={
+    			dilationConf: false,
+    			offlineProgress: true,
+    			autoSave: true,
+    			progressBar: true,
+    			logRateChange: false,
+    			hideProductionTab: true,
+    			eternityChallRecords: {},
+    			popUpId: 0,
+    			tabsSave: {on: false},
+    			breakInfinity: false
+            }
+    		temp_save.aarexModifications.save_name = save_name
+    	}
+    	set_save(id, temp_save)
+    	placement=1
+    	while (metaSave.saveOrder[placement-1]!=id) placement++
+    	changeSaveDesc(id, placement)
+    	$.notify("Save #"+placement+" renamed", "info")
+    });
 }
 
 function export_save(id) {
