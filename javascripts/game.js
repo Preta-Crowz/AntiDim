@@ -7314,6 +7314,7 @@ function initGame() {
 }
 
 window.addEventListener('keydown', function(event) {
+    if($("#prompt")[0].style.display == "block") return;
 	if (keySequence == 0 && event.keyCode == 38) keySequence++
 	else if (keySequence == 1 && event.keyCode == 38) keySequence++
 	else if (keySequence == 2 && event.keyCode == 40) keySequence++
@@ -7343,6 +7344,7 @@ window.addEventListener('keydown', function(event) {
 }, false);
 
 window.addEventListener('keyup', function(event) {
+    if($("#prompt")[0].style.display == "block") return;
 	if (event.keyCode == 17) controlDown = false;
 	if (event.keyCode == 16) {
 		shiftDown = false;
@@ -7359,6 +7361,10 @@ window.onfocus = function() {
 }
 
 window.addEventListener('keydown', function(event) {
+    if($("#prompt")[0].style.display == "block"){
+        if(event.keyCode == 27) $("#prompt")[0].setAttribute("style", "display: none;");
+        return;
+    }
 	if (!player.options.hotkeys || controlDown === true || document.activeElement.type === "text" || document.activeElement.type === "number" || onImport) return false
 	const key = event.keyCode;
 	if (key >= 49 && key <= 56) {
@@ -7428,6 +7434,7 @@ window.addEventListener('keydown', function(event) {
 }, false);
 
   window.addEventListener('keyup', function(event) {
+    if($("#prompt")[0].style.display == "block") return;
     if (event.keyCode === 70) {
         $.notify("Paying respects", "info")
         giveAchievement("It pays to have respect")
