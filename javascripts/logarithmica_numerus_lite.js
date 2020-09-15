@@ -1,4 +1,5 @@
 'use strict';   
+var globalScope = global;
 /*
     # logarithmica_numerus_lite.js
     My "lite" attempt to store large numbers that only uses logarithms to convert.
@@ -703,16 +704,16 @@ if (typeof define == 'function' && define.amd) {
 
 // Browser.
 } else {
-if (!globalScope) {
-    globalScope = typeof self != 'undefined' && self && self.self == self
-    ? self : Function('return this')();
-}
+    if (!globalScope) {
+        globalScope = typeof self != 'undefined' && self && self.self == self
+        ? self : Function('return this')();
+    }
 
-var noConflict = globalScope.Decimal;
-Decimal.noConflict = function () {
-    globalScope.Decimal = noConflict;
-    return Decimal;
-};
+    var noConflict = globalScope.Decimal;
+    Decimal.noConflict = function () {
+        globalScope.Decimal = noConflict;
+        return Decimal;
+    };
 
-global.Decimal = Decimal;
+    globalScope.Decimal = Decimal;
 }
