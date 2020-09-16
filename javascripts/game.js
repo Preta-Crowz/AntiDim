@@ -279,22 +279,26 @@ function setupHTMLAndData() {
 	setupBosonicRunes()
 }
 
+function getMods(){
+	return {
+		ngm: player.aarexModifications.newGameMinusVersion !== undefined,
+		ngp: player.aarexModifications.ngp4V !== undefined ? 2 : player.aarexModifications.newGamePlusVersion !== undefined ? 1 : 0,
+		arrows: player.aarexModifications.newGameExpVersion !== undefined,
+		ngpp: player.meta == undefined ? false : player.aarexModifications.ngp3lV ? 3 : tmp.ngp3 ? 2 : 1,
+		ngmm: player.aarexModifications.ngmX ? player.aarexModifications.ngmX - 1 : player.galacticSacrifice !== undefined ? 1 : 0,
+		rs: player.infinityUpgradesRespecced != undefined ? 2 : player.boughtDims !== undefined,
+		ngud: player.aarexModifications.nguspV !== undefined ? 3 : player.aarexModifications.ngudpV !== undefined ? 2 : player.exdilation !== undefined ? 1 : 0,
+		nguep: player.aarexModifications.nguepV !== undefined,
+		ngmu: player.aarexModifications.newGameMult === 1,
+		ngumu: player.aarexModifications.ngumuV !== undefined,
+		ngex: player.aarexModifications.ngexV !== undefined,
+		aau: player.aarexModifications.aau !== undefined
+	}
+}
+
 function updateNewPlayer(reseted) {
 	if (reseted) {
-		var modesChosen = {
-			ngm: player.aarexModifications.newGameMinusVersion !== undefined,
-			ngp: player.aarexModifications.ngp4V !== undefined ? 2 : player.aarexModifications.newGamePlusVersion !== undefined ? 1 : 0,
-			arrows: player.aarexModifications.newGameExpVersion !== undefined,
-			ngpp: player.meta == undefined ? false : player.aarexModifications.ngp3lV ? 3 : tmp.ngp3 ? 2 : 1,
-			ngmm: player.aarexModifications.ngmX ? player.aarexModifications.ngmX - 1 : player.galacticSacrifice !== undefined ? 1 : 0,
-			rs: player.infinityUpgradesRespecced != undefined ? 2 : player.boughtDims !== undefined,
-			ngud: player.aarexModifications.nguspV !== undefined ? 3 : player.aarexModifications.ngudpV !== undefined ? 2 : player.exdilation !== undefined ? 1 : 0,
-			nguep: player.aarexModifications.nguepV !== undefined,
-			ngmu: player.aarexModifications.newGameMult === 1,
-			ngumu: player.aarexModifications.ngumuV !== undefined,
-			ngex: player.aarexModifications.ngexV !== undefined,
-			aau: player.aarexModifications.aau !== undefined
-		}
+		var modesChosen = getMods();
 	} 
 	else var modesChosen = modes
 	player = {

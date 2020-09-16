@@ -1,8 +1,4 @@
-const RPC = require('discord-rpc');
-
-const clientId = '755528057070026952';
-const scopes = ['rpc', 'rpc.api'];
-
+const discord = require('discord-rich-presence')('755528057070026952');
 var rpcConfig = localStorage.getItem("discord");
 
 if (rpcConfig === null){
@@ -14,24 +10,83 @@ if (rpcConfig === null){
     rpcConfig = JSON.parse(rpcConfig);
 }
 
-global.discord = new RPC.Client({ transport: 'ipc' });
-
 var startTimestamp = Date.now();
 
+function getModsArray(){
+    var modsObj = getMods();
+    var mods = [];
+    for(var k in modsObj){
+        if(modsObj[k] !== false && modsObj[k] !== undefined)
+            mods.push(k);
+    }
+    return mods;
+}
+
 function getLevel(){
-    return "Unknown";
-};
-function getMods(){
+    if(getModsArray("ngpp")){
+        switch(true){
+            case player.ghostify.bl.watt > 0:
+                return "Bosonic Lab"
+            case player.ghostify.ghostlyPhotons.amount > 0:
+                return "Ghostly Photons";
+            case player.ghostify.reached:
+                return "Ghostify";
+            case tmp.qu.breakEternity.break:
+                return "Break Eternity";
+            case tmp.qu.bigRip.times > 0:
+                return "Big Rip";
+            case tmp.qu.tod.upgrades.length > 0:
+                return "Tree of Decay";
+            case tmp.qu.nanofield.antienergy > 0:
+                return "Nanofield";
+            case tmp.qu.replicants.amount > 0:
+                return "Replicants";
+            case tmp.qu.reached:
+                return "Quantum";
+            case player.masterystudies.length > 0:
+                return "Mastery Studies";
+            case player.meta[1].amount > 0:
+                return "Meta Dimensions";
+        }
+    }
+    if(getModsArray("ngud")){
+        switch(true){
+            case player.blackhole.unl:
+                return "Blackhole";
+        }
+    }
+    switch(true){
+        case player.dilation.studies.length > 0:
+            return "Time Dilation";
+        case player.eternities > 0:
+            return "Eternity";
+        case player.replicanti.amount > 0:
+            return "Replicanti";
+        case player.break:
+            return "Break-Infinity";
+        case player.infinitied > 0:
+            return "Infinity";
+        default:
+            return "Pre-Infinity";
+    }
     return "Unknown";
 };
 
 function updateDiscord(){
-    if(!rpcConfig.enabled) discord.destroy();
-    discord.setActivity({
+    if(!rpcConfig.enabled) return;
+    var mods = getModsArray();
+    if (mods.length > 1)
+        var modStatus = 'Playing with ' + mods.length + ' mods';
+    else if (mods.length == 1)
+        var modStatus = 'Playing with ' + mods[0];
+    else
+        var modStatus = 'Playing vanilla';
+
+    discord.updatePresence({
         details: 'Current level : ' + getLevel(),
-        state: 'Playing with' + modCount + (getMods()==1 ? 'Mod' : 'Mods'),
+        state: modStatus,
         startTimestamp,
-        largeImageKey: 'iron',
+        largeImageKey: 'icon',
         largeImageText: 'Antimatter Dimensions',
         smallImageKey: 'electron',
         smallImageText: 'Running with Electron',
@@ -40,25 +95,8 @@ function updateDiscord(){
     setTimeout(updateDiscord, 15000);
 }
 
-discord.on('ready', () => {
-    console.log("asdf");
-    if(!rpcConfig.enabled) discord.destroy();
-    startTimestamp = Date.now();
-    updateDiscord();
-});
-
-function discordErr(e){
-    console.error(e);
-    rpcConfig.enabled = false;
-}
-
-discord.on('error', discordErr);
-
-discord.on('message', (m) =>{
-    console.log(m);
-});
 function startDiscord(){
     if(!rpcConfig.enabled) return;
-    discord.login({ clientId, scopes }).catch(discordErr);
+    updateDiscord();
 };
 startDiscord();
