@@ -42,7 +42,7 @@ function getModsArray(){
 
 function getLevel(){
     if(!global.player) return "Unknown";
-    if(getModsArray("ngpp")){
+    if(getModsArray().indexOf("ngpp") + 1){
         switch(true){
             case player.ghostify.bl.watt > 0:
                 return "Bosonic Lab"
@@ -68,7 +68,7 @@ function getLevel(){
                 return "Meta Dimensions";
         }
     }
-    if(getModsArray("ngud")){
+    if(getModsArray().indexOf("ngud") + 1){
         switch(true){
             case player.blackhole.unl:
                 return "Blackhole";
