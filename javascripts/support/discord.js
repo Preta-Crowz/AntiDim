@@ -50,17 +50,17 @@ function getLevel(){
                 return "Ghostly Photons";
             case player.ghostify.reached:
                 return "Ghostify";
-            case tmp.qu.breakEternity.break:
+            case player.quantum.breakEternity.unlocked:
                 return "Break Eternity";
-            case tmp.qu.bigRip.times > 0:
+            case player.quantum.bigRip.times > 0:
                 return "Big Rip";
-            case tmp.qu.tod.upgrades.length > 0:
+            case player.quantum.tod.upgrades > 0:
                 return "Tree of Decay";
-            case tmp.qu.nanofield.antienergy > 0:
+            case player.quantum.nanofield.antienergy > 0:
                 return "Nanofield";
-            case tmp.qu.replicants.amount > 0:
+            case player.quantum.replicants.amount > 0:
                 return "Replicants";
-            case tmp.qu.reached:
+            case player.quantum.reached:
                 return "Quantum";
             case player.masterystudies.length > 0:
                 return "Mastery Studies";
