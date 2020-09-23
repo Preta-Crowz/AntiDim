@@ -12,16 +12,17 @@ if (rpcConfig === null){
 
 var startTimestamp = Date.now();
 
-function getMods(){
+function getModsStatus(){
     if(!global.player) return {};
     return {
         ngm: player.aarexModifications.newGameMinusVersion !== undefined,
-        ngp: player.aarexModifications.ngp4V !== undefined ? 2 : player.aarexModifications.newGamePlusVersion !== undefined ? 1 : 0,
+        ngp: player.aarexModifications.ngp4V !== undefined || player.aarexModifications.newGamePlusVersion !== undefined,
         arrows: player.aarexModifications.newGameExpVersion !== undefined,
-        ngpp: player.meta == undefined ? false : player.aarexModifications.ngp3lV ? 3 : tmp.ngp3 ? 2 : 1,
-        ngmm: player.aarexModifications.ngmX ? player.aarexModifications.ngmX - 1 : player.galacticSacrifice !== undefined ? 1 : 0,
-        rs: player.infinityUpgradesRespecced != undefined ? 2 : player.boughtDims !== undefined,
-        ngud: player.aarexModifications.nguspV !== undefined ? 3 : player.aarexModifications.ngudpV !== undefined ? 2 : player.exdilation !== undefined ? 1 : 0,
+        ngpp: player.meta !== undefined || player.aarexModifications.ngp3lV || tmp.ngp3,
+        ngp3: tmp.ngp3 !== undefined,
+        ngmm: player.aarexModifications.ngmX || player.galacticSacrifice !== undefined,
+        rs: player.infinityUpgradesRespecced != undefined || player.boughtDims !== undefined,
+        ngud: player.aarexModifications.nguspV !== undefined || player.aarexModifications.ngudpV !== undefined || player.exdilation !== undefined,
         nguep: player.aarexModifications.nguepV !== undefined,
         ngmu: player.aarexModifications.newGameMult === 1,
         ngumu: player.aarexModifications.ngumuV !== undefined,
@@ -31,13 +32,32 @@ function getMods(){
 }
 
 function getModsArray(){
-    var modsObj = getMods();
+    var modsObj = getModsStatus();
     var mods = [];
     for(var k in modsObj){
         if(modsObj[k] !== false && modsObj[k] !== undefined)
             mods.push(k);
     }
     return mods;
+}
+
+
+function getMainMod(){
+    var mods = getModsStatus();
+    switch(true){
+        case mods.ngp3 && mods.ngud:
+            return "NGUd S\'";
+        case mods.ngp3:
+            return "NG+3.1" + (mods.ngp ? "" : " Grand Run");
+        case mods.ngpp:
+            return "NG++";
+        case mods.ngud:
+            return "NGUd";
+        case mods.ngp:
+            return "NG+";
+    }
+    // I'm too lazy to make this to support all mods
+    return mods[0];
 }
 
 function isOnChallenge(){
@@ -47,7 +67,7 @@ function isOnChallenge(){
 
 function getLevel(){
     if(!global.player) return "Unknown";
-    if(getModsArray().indexOf("ngpp") + 1){
+    if(getModsArray().indexOf("ngp3") + 1){
         switch(true){
             case player.ghostify.bl.watt > 0:
                 return "Bosonic Lab"
@@ -124,7 +144,7 @@ function updateDiscord(){
 
     var mods = getModsArray();
     if (mods.length > 1)
-        var modStatus = 'Playing with ' + mods.length + ' mods';
+        var modStatus = 'Playing with ' + mods.length + ' mods (' + getMainMod() + ')';
     else if (mods.length == 1)
         var modStatus = 'Playing with ' + mods[0];
     else
