@@ -41,7 +41,8 @@ function getModsArray(){
 }
 
 function isOnChallenge(){
-    return (player.currentChallenge !== "") || (player.currentEternityChall !== "")
+    if(!global.player) return false;
+    return (player.currentChallenge != "") || (player.currentEternityChall != "")
 }
 
 function getLevel(){
@@ -118,6 +119,9 @@ function getChall(){
 
 function updateDiscord(){
     if(!rpcConfig.enabled) return;
+
+    if(!global.player) return setTimeout(updateDiscord, 500);
+
     var mods = getModsArray();
     if (mods.length > 1)
         var modStatus = 'Playing with ' + mods.length + ' mods';
@@ -127,7 +131,7 @@ function updateDiscord(){
         var modStatus = 'Playing vanilla';
 
     discord.updatePresence({
-        details: isOnChallenge() ? 'Current level : '+getLevel() : 'Current challenge : '+getChall(),
+        details: isOnChallenge() ? 'Current challenge : '+getChall() : 'Current level : '+getLevel(),
         state: modStatus,
         startTimestamp,
         largeImageKey: 'icon',
@@ -141,7 +145,6 @@ function updateDiscord(){
 
 function startDiscord(){
     if(!rpcConfig.enabled) return;
-    setTimeout(updateDiscord, 500);
     updateDiscord();
 };
 startDiscord();
