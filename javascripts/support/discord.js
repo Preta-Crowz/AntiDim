@@ -130,7 +130,7 @@ function updateDiscord(){
     else
         var modStatus = 'Playing vanilla';
 
-    discord.updatePresence({
+    var nextRpc = {
         details: isOnChallenge() ? 'Current challenge : '+getChall() : 'Current level : '+getLevel(),
         state: modStatus,
         startTimestamp,
@@ -139,7 +139,13 @@ function updateDiscord(){
         smallImageKey: 'electron',
         smallImageText: 'Running with Electron',
         instance: false
-    });
+    }
+    
+    if (nextRpc.details == global.lastRpc.details && nextRpc.state == global.lastRpc.state)
+        return setTimeout(updateDiscord, 500);
+
+    discord.updatePresence(nextRpc);
+    global.lastRpc = nextRpc;
     setTimeout(updateDiscord, 15000);
 }
 
@@ -147,4 +153,5 @@ function startDiscord(){
     if(!rpcConfig.enabled) return;
     updateDiscord();
 };
+global.lastRpc = {};
 startDiscord();
