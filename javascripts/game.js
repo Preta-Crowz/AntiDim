@@ -277,6 +277,7 @@ function setupHTMLAndData() {
 	setupBosonicExtraction()
 	setupBosonicUpgrades()
 	setupBosonicRunes()
+    updateRpcTab()
 }
 
 function getMods(){

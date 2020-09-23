@@ -1,4 +1,4 @@
-const discord = require('discord-rich-presence')('755528057070026952');
+const rpcModule = require('discord-rich-presence');
 var rpcConfig = localStorage.getItem("discord");
 
 if (rpcConfig === null){
@@ -138,40 +138,62 @@ function getChall(){
 }
 
 function updateDiscord(){
-    if(!rpcConfig.enabled) return;
+    try{
+        if(!rpcConfig.enabled) return startDiscord();
 
-    if(!global.player) return setTimeout(updateDiscord, 500);
+        if(!global.player) return setTimeout(updateDiscord, 500);
 
-    var mods = getModsArray();
-    if (mods.length > 1)
-        var modStatus = 'Playing with ' + mods.length + ' mods (' + getMainMod() + ')';
-    else if (mods.length == 1)
-        var modStatus = 'Playing with ' + mods[0];
-    else
-        var modStatus = 'Playing vanilla';
+        var mods = getModsArray();
+        if (mods.length > 1)
+            var modStatus = 'Playing with ' + mods.length + ' mods (' + getMainMod() + ')';
+        else if (mods.length == 1)
+            var modStatus = 'Playing with ' + mods[0];
+        else
+            var modStatus = 'Playing vanilla';
 
-    var nextRpc = {
-        details: isOnChallenge() ? 'Current challenge : '+getChall() : 'Current level : '+getLevel(),
-        state: modStatus,
-        startTimestamp,
-        largeImageKey: 'icon',
-        largeImageText: 'Antimatter Dimensions',
-        smallImageKey: 'electron',
-        smallImageText: 'Running with Electron',
-        instance: false
+        var nextRpc = {
+            details: isOnChallenge() ? 'Current challenge : '+getChall() : 'Current level : '+getLevel(),
+            state: modStatus,
+            startTimestamp,
+            largeImageKey: 'icon',
+            largeImageText: 'Antimatter Dimensions',
+            smallImageKey: 'electron',
+            smallImageText: 'Running with Electron',
+            instance: false
+        }
+        
+        if (nextRpc.details == global.lastRpc.details && nextRpc.state == global.lastRpc.state)
+            return setTimeout(updateDiscord, 500);
+
+        discord.updatePresence(nextRpc);
+        global.lastRpc = nextRpc;
+        setTimeout(updateDiscord, 15000);
+    } catch(e) {
+        console.error("Got exception while update rpc, retry on 5 secs.");
+        console.error(e);
+        setTimeout(updateDiscord, 5000);
     }
-    
-    if (nextRpc.details == global.lastRpc.details && nextRpc.state == global.lastRpc.state)
-        return setTimeout(updateDiscord, 500);
-
-    discord.updatePresence(nextRpc);
-    global.lastRpc = nextRpc;
-    setTimeout(updateDiscord, 15000);
 }
 
 function startDiscord(){
+    localStorage.setItem("discord", JSON.stringify(rpcConfig));
+    if(global.discord) global.discord.disconnect();
     if(!rpcConfig.enabled) return;
+    global.discord = rpcModule('755528057070026952');
     updateDiscord();
 };
+
+
+
+function toggleRpc(){
+    rpcConfig.enabled = !rpcConfig.enabled;
+    startDiscord();
+    updateRpcTab();
+}
+
+function updateRpcTab(){
+    $("#togglerpcbtn")[0].innerText = (rpcConfig.enabled ? "Disable" : "Enable") + " Discord RPC";
+}
+
 global.lastRpc = {};
 startDiscord();

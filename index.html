@@ -1765,6 +1765,7 @@
 				<tr>
 					<td><button class="secondarytabbtn" onclick="showOptionTab('saving')">Saves</button></td>
 					<td><button class="secondarytabbtn" onclick="showOptionTab('otheroptions')">Options</button></td>
+                    <td><button class="secondarytabbtn" onclick="showOptionTab('discord')">Discord RPC</button></td>
 					<td id="secretoptionsbtn"><button class="secondarytabbtn" onclick="showOptionTab('secrets')">Secrets</button></td>
 				</tr>
 			</table>
@@ -1827,6 +1828,13 @@
 					</tr>
 				</table>
 			</div>
+            <div class='optionstab' id='discord' style='display:none'>
+                <table>
+                    <tr>
+                        <td><div><button id="togglerpcbtn" onclick="toggleRpc()" class="storebtn" style="color:black; width: 200px; height: 55px; font-size:120%">Disable Discord RPC</button></div></td>
+                    </tr>
+                </table>
+            </div>
 			<p id='hotkeysDesc'></p>
 			<br>
 			<p id='versionDesc'>
