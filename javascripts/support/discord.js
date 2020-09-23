@@ -40,6 +40,10 @@ function getModsArray(){
     return mods;
 }
 
+function isOnChallenge(){
+    return (player.currentChallenge !== "") || (player.currentEternityChall !== "")
+}
+
 function getLevel(){
     if(!global.player) return "Unknown";
     if(getModsArray().indexOf("ngpp") + 1){
@@ -58,8 +62,15 @@ function getLevel(){
                 return "Tree of Decay";
             case player.quantum.nanofield.antienergy > 0:
                 return "Nanofield";
+            case player.quantum.emperorDimensions[1].workers > 0:
+                return "Emperor Dimensions";
             case player.quantum.replicants.amount > 0:
                 return "Replicants";
+            // QC will be buggy because I didn't find other way to get list
+            case Object.keys(player.quantum.challengeRecords).length > 1:
+                return "Quantum Challenges";
+            case player.quantum.electrons.sacGals > 0:
+                return "Electrons"
             case player.quantum.reached:
                 return "Quantum";
             case player.masterystudies.length > 0:
@@ -91,6 +102,20 @@ function getLevel(){
     return "Unknown";
 };
 
+function getChall(){
+    if(player.currentChallenge !== ""){
+        switch(true){
+            case player.currentEternityChall.substr(0,5) == "eterc":
+                return "EC" + player.currentEternityChall.substr(5);
+            case player.currentChallenge.substr(0,5) == "postc":
+                return "IC" + player.currentChallenge.substr(5);
+            case player.currentChallenge.substr(0,9) == "challenge":
+                return "C" + player.currentChallenge.substr(9);
+        }
+    }
+    return "Cat Challenge";
+}
+
 function updateDiscord(){
     if(!rpcConfig.enabled) return;
     var mods = getModsArray();
@@ -102,7 +127,7 @@ function updateDiscord(){
         var modStatus = 'Playing vanilla';
 
     discord.updatePresence({
-        details: 'Current level : ' + getLevel(),
+        details: isOnChallenge() ? 'Current level : '+getLevel() : 'Current challenge : '+getChall(),
         state: modStatus,
         startTimestamp,
         largeImageKey: 'icon',
@@ -116,6 +141,7 @@ function updateDiscord(){
 
 function startDiscord(){
     if(!rpcConfig.enabled) return;
+    setTimeout(updateDiscord, 500);
     updateDiscord();
 };
 startDiscord();
