@@ -408,7 +408,9 @@ newsArray = [//always true
 ["Cat says meow, then anti-cat says woem?", true, "nk1"],
 ["(The news was taken by cat)", true, "nk2"],
 ["Try offline.", true, "nk3"],
-["You found a cat.", true, "nk4"]
+["You found a cat.", true, "nk4"],
+["AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAkira turned the game to offline.", true, "nk5"],
+["What's anti-anti-matter? Is it only matter?", true, "nk6"]
 ];}
 
 document.addEventListener("visibilitychange", function() {if (!document.hidden) {scrollNextMessage();}}, false);
