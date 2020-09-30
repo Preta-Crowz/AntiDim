@@ -20,6 +20,14 @@ function getBosonicWattGain() {
 	return player.money.log10() / 2e16 - 1.25
 }
 
+function getBatteryGainPerSecond(toSub){
+	let batteryMult = new Decimal(1)
+	if (player.ghostify.bl.usedEnchants.includes(24)) batteryMult = batteryMult.times(tmp.bEn[24])
+	let toAdd = toSub.div(1e6).times(batteryMult)
+	if (toAdd.gt(1e3)) toAdd = Decimal.pow(toAdd.log10() + 7, 3) 
+	return toAdd.div(10)
+}
+
 function bosonicTick(diff) {
 	let lDiff //Mechanic-local diff
 	let lData //Mechanic-local data
@@ -45,20 +53,16 @@ function bosonicTick(diff) {
 		if (lData.dPUse == 1) {
 			lData.wQkProgress = lData.wQkProgress.add(apDiff.times(tmp.wzb.zbs))
 			if (lData.wQkProgress.gt(1)) {
-				let toSub=lData.wQkProgress.floor()
-				lData.wpb=lData.wpb.add(toSub.add(lData.wQkUp ? 1 : 0).div(2).floor())
-				lData.wnb=lData.wnb.add(toSub.add(lData.wQkUp ? 0 : 1).div(2).floor())
+				let toSub = lData.wQkProgress.floor()
+				lData.wpb = lData.wpb.add(toSub.add(lData.wQkUp ? 1 : 0).div(2).floor())
+				lData.wnb = lData.wnb.add(toSub.add(lData.wQkUp ? 0 : 1).div(2).floor())
 				if (toSub.mod(2).gt(0)) lData.wQkUp = !lData.wQkUp
 				lData.wQkProgress = lData.wQkProgress.sub(toSub.min(lData.wQkProgress))
 				
-				let batteryMult = new Decimal(1)
-				if (data.usedEnchants.includes(33)) batteryMult = batteryMult.times(tmp.bEn[33])
-				
-				let toAdd = toSub.div(1e6).times(batteryMult).div(diff)
-
-				if (toAdd.gt(1e3)) toAdd = Decimal.pow(toAdd.log10() + 7, 3) 
+				let toAdd = getBatteryGainPerSecond(toSub)
 
 				data.battery = data.battery.add(toAdd.times(diff))
+				tmp.batteryGainLast = toAdd
 			}
 		}
 		if (lData.dPUse == 2) {
@@ -162,22 +166,6 @@ function getBosonicAMFinalProduction() {
 	return r
 }
 
-function updateBosonicAMDimReturnsTemp() {
-	var data = {}
-	tmp.badm = data
-
-	if (!tmp.ngp3) return
-	if (tmp.ngp3l) return
-	if (!player.ghostify.wzb.unl) return
-
-	data.start = getHiggsRequirement()
-	data.base = getHiggsRequirementMult()
-	data.offset = 1 / Math.log(data.base) - 1
-	data.offset2 = 1 - Math.log10(data.offset + 1) / Math.log10(data.base)
-	data.postDim = player.ghostify.bl.am.div(data.start)
-	data.preDim = Decimal.pow(data.base,  Decimal.log(100, data.postDim) - data.offset2).add(-data.offset).max(1)
-}
-
 function updateBosonicLimits() {
 	if (!tmp.ngp3) return
 
@@ -223,6 +211,14 @@ function showBLTab(tabName) {
 	closeToolTip()
 }
 
+function getEstimatedNetBatteryGain(){
+	let pos = (tmp.batteryGainLast || new Decimal(0)).times(1000)
+	if (player.ghostify.wzb.dPUse != 1) pos = new Decimal(0)
+	let neg = getBosonicBatteryLoss().times(player.ghostify.bl.speed)
+	if (pos.gte(neg)) return [true, pos.minus(neg)]
+	return [false, neg.minus(pos)]
+}
+
 function updateBosonicLabTab(){
 	let data = player.ghostify.bl
 	let speed = data.speed * (data.battery.gt(0) ? data.odSpeed : 1)
@@ -235,7 +231,10 @@ function updateBosonicLabTab(){
 	document.getElementById("bAMProductionReduced").style.display = !tmp.ngp3l && data.am.gt(tmp.badm.start) ? "" : "none"
 	document.getElementById("bAMProductionReduced").textContent = "(reduced by " + shorten(tmp.badm.preDim) + "x)"
 	document.getElementById("bBt").textContent = shorten(data.battery)
-	document.getElementById("bBtProduction").textContent = "-" + shorten(getBosonicBatteryLoss().times(data.speed)) + "/s"
+	let x = getEstimatedNetBatteryGain()
+	s = shorten(x[1]) + "/s"
+	if (!x[0]) s = "-" + s
+	document.getElementById("bBtProduction").textContent = s
 	document.getElementById("odSpeed").textContent=(data.battery.gt(0)?data.odSpeed:1).toFixed(2) + "x"
 	document.getElementById("odSpeedWBBt").style.display = data.battery.eq(0) && data.odSpeed > 1 ? "" : "none"
 	document.getElementById("odSpeedWBBt").textContent = " (" + data.odSpeed.toFixed(2) + "x if you have Bosonic Battery)"
@@ -467,15 +466,18 @@ var bEn = {
 	effects: {
 		12: function(l) {
 			let exp = 0.75
-			if (l.gt(1e10)) exp /= Math.pow(l.log10() / 10, 1/3)
+			if (l.gt(1e10)) exp *= Math.pow(l.log10() / 10, 1/3)
+			if (exp > .8) exp = Math.log10(exp * 12.5) * .8
 			return Decimal.pow(l, exp).div(bEn.autoScalings[player.ghostify.bl.typeToExtract])
 		},
 		13: function(l) {
 			return Decimal.add(l, 1).sqrt()
 		},
 		14: function(l) {
+			let eff = Decimal.add(l, 9).log10()
+			if (eff > 15) eff = Math.sqrt(eff * 15)
 			return {
-				bUpgs: Math.floor(Math.pow(Decimal.add(l, 9).log10(), 2/3)),
+				bUpgs: Math.floor(eff),
 				higgs: Decimal.add(l, 1).pow(0.4)
 			}
 		},
@@ -513,15 +515,6 @@ var bEn = {
 		3: 12,
 		4: 1e6,
 		5: 1/0
-	}
-}
-
-function updateBosonicEnchantsTemp(){
-	tmp.bEn.lvl = {}
-	for (var g2 = 2; g2 <= br.limit; g2++) for (var g1 = 1; g1 < g2; g1++) {
-		var id = g1 * 10 + g2
-		tmp.bEn.lvl[id] = player.ghostify.bl.enchants[id] || new Decimal(0)
-		if (bEn.effects[id] !== undefined) tmp.bEn[id] = getEnchantEffect(id)
 	}
 }
 
@@ -821,10 +814,7 @@ var bu = {
 		},
 		45: function() {
 			var eff = player.dilation.dilatedTime.add(1).pow(.0005)
-			if (eff.gt(9)) eff = Decimal.pow(eff, .5).times(3)
-			if (eff.gt(25)) eff = Decimal.pow(eff, .5).times(5)
-			if (eff.gt(49)) eff = Decimal.pow(eff, .5).times(7)
-			if (eff.gt(81)) eff = Decimal.pow(eff, .5).times(9)
+			eff = softcap(eff, "bu45")
 			return eff.toNumber()
 		}
 	},
@@ -874,13 +864,6 @@ var bu = {
 	}
 }
 
-function updateBosonicUpgradesTemp(){
-	for (var r = bu.rows; r >= 1; r--) for (var c = 1; c < 6; c++) {
-		var id = r * 10 + c
-		if (bu.effects[id] !== undefined) tmp.blu[id] = bu.effects[id]()
-	}
-}
-
 //Bosonic Overdrive
 function getBosonicBatteryLoss() {
 	if (player.ghostify.bl.odSpeed == 1) return new Decimal(0)
@@ -921,20 +904,6 @@ function getOscillateGainSpeed() {
 	return Decimal.div(r, player.ghostify.wzb.zNeReq)
 }
 
-function updateWZBosonsTemp(){
-	var data = tmp.wzb
-	var wpl = player.ghostify.wzb.wpb.add(1).log10()
-	var wnl = player.ghostify.wzb.wnb.add(1).log10()
-
-	var bosonsExp = Math.max(wpl * (player.ghostify.wzb.wpb.sub(player.ghostify.wzb.wnb.min(player.ghostify.wzb.wpb))).div(player.ghostify.wzb.wpb.max(1)).toNumber(), 0)
-	data.wbt = Decimal.pow(tmp.newNGP3E ? 5 : 3, bosonsExp) //W Bosons boost to extract time
-	data.wbo = Decimal.pow(10, Math.max(bosonsExp, 0)) //W Bosons boost to Z Neutrino oscillation requirement
-	data.wbp = player.ghostify.wzb.wpb.add(player.ghostify.wzb.wnb).div(100).max(1).pow(1 / 3).sub(1) //W Bosons boost to Bosonic Antimatter production
-
-	var zbslog = player.ghostify.wzb.zb.div(10).add(1).sqrt().log10()
-	data.zbs = Decimal.pow(10, zbslog) //Z Bosons boost to W Quark
-}
-
 function updateWZBosonsTab() {
 	let data = player.ghostify.bl
 	let data2 = tmp.wzb
@@ -947,9 +916,9 @@ function updateWZBosonsTab() {
 	else r = getAntiPreonLoss().times(speed)
 	document.getElementById("ap").textContent = shorten(data3.dP)
 	document.getElementById("apProduction").textContent = (data3.dPUse ? "-" : "+") + shorten(r) + "/s"
-	document.getElementById("apUse").textContent = data3.dPUse == 0 ? "" : "You are currently consuming Anti-Preons to " + (["", "decay W Quark", "oscillate Z Neutrino", "convert W- to W+ Bosons"])[data3.dPUse] + "."
-	document.getElementById("wQkType").textContent = data3.wQkUp ? "up" : "down"
-	document.getElementById("wQkProgress").textContent = data3.wQkProgress.times(100).toFixed(1) + "% to turn W Quark to a" + (data3.wQkUp ? " down" : "n up")+" quark."
+	document.getElementById("apUse").textContent = data3.dPUse == 0 ? "" : "You are currently consuming Anti-Preons to " + (["", "decay W Bosons", "oscillate Z Bosons", "convert W- to W+ Bosons"])[data3.dPUse] + "."
+	document.getElementById("wQkType").textContent = data3.wQkUp ? "positive" : "negative"
+	document.getElementById("wQkProgress").textContent = data3.wQkProgress.times(100).toFixed(1) + "% to turn W Boson to a" + (data3.wQkUp ? " negative" : " positive")+" Boson."
 	document.getElementById("wQk").className = show0 ? "zero" : data3.wQkUp ? "up" : "down"
 	document.getElementById("wQkSymbol").textContent = show0 ? "0" : data3.wQkUp ? "+" : "−"
 	document.getElementById("wpb").textContent = shortenDimensions(data3.wpb)
@@ -958,7 +927,7 @@ function updateWZBosonsTab() {
 	document.getElementById("wbOscillate").textContent = shorten(data2.wbo)
 	document.getElementById("wbProduction").textContent = shorten(data2.wbp)
 	document.getElementById("zNeGen").textContent = (["electron", "Mu", "Tau"])[data3.zNeGen - 1]
-	document.getElementById("zNeProgress").textContent = data3.zNeProgress.times(100).toFixed(1) + "% to oscillate Z Neutrino to " + (["Mu", "Tau", "electron"])[data3.zNeGen-1] + "."
+	document.getElementById("zNeProgress").textContent = data3.zNeProgress.times(100).toFixed(1) + "% to oscillate Z Boson to " + (["Mu", "Tau", "electron"])[data3.zNeGen-1] + "."
 	document.getElementById("zNeReq").textContent = "Oscillate progress gain speed is currently " + (gainSpeed.gt(1) ? shorten(gainSpeed) : "1 / " + shorten(Decimal.div(1, gainSpeed))) + "x."
 	document.getElementById("zNe").className = (["electron","mu","tau"])[data3.zNeGen - 1]
 	document.getElementById("zNeSymbol").textContent = (["e", "μ", "τ"])[data3.zNeGen - 1]

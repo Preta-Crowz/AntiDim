@@ -9,9 +9,9 @@ function updateToDSpeedDisplay(){
 	document.getElementById("todspeed").textContent = t
 }
 
-function getTreeUpgradeEfficiencyDisplay(){
-	s = 'getTreeUpgradeEfficiencyText()'
-	if (!shiftDown) s = '"Tree upgrade efficiency: "+(tmp.tue*100).toFixed(1)+"%"'
+function getTreeUpgradeEfficiencyDisplayText(){
+	s = getTreeUpgradeEfficiencyText()
+	if (!shiftDown) s = "Tree upgrade efficiency: "+(tmp.tue*100).toFixed(1)+"%"
 	return s
 }
 
@@ -29,26 +29,31 @@ function updateTreeOfDecayTab(){
 		var name = color + " " + getUQName(shorthand) + " quarks"
 		var rate = getDecayRate(shorthand)
 		var linear = Decimal.pow(2, getRDPower(shorthand))
-		document.getElementById(color+"UnstableGain").className = tmp.qu.usedQuarks[shorthand].gt(0) && getUnstableGain(shorthand).gt(branch.quarks) ? "storebtn" : "unavailablebtn"
-		document.getElementById(color+"UnstableGain").textContent = "Gain " + shortenMoney(getUnstableGain(shorthand)) + " " + name + (player.ghostify.milestones > 3 ? "." : ", but lose all your " + color + " quarks.")
-		document.getElementById(color+"QuarkSpin").textContent = shortenMoney(branch.spin)
-		document.getElementById(color+"UnstableQuarks").textContent = shortenMoney(branch.quarks)
-		document.getElementById(color+"QuarksDecayRate").textContent = branch.quarks.lt(linear) && rate.lt(1) ? "You are losing " + shorten(linear.times(rate)) + " " + name + " per second" : "Their half-life is " + timeDisplayShort(Decimal.div(10,rate), true, 2) + (linear.eq(1) ? "" : " until their amount reaches " + shorten(linear))
-		document.getElementById(color+"QuarksDecayTime").textContent = timeDisplayShort(Decimal.div(10,rate).times(branch.quarks.gt(linear) ? branch.quarks.div(linear).log(2) + 1 : branch.quarks.div(linear)))
+		document.getElementById(color + "UnstableGain").className = tmp.qu.usedQuarks[shorthand].gt(0) && getUnstableGain(shorthand).gt(branch.quarks) ? "storebtn" : "unavailablebtn"
+		document.getElementById(color + "UnstableGain").textContent = "Gain " + shortenMoney(getUnstableGain(shorthand)) + " " + name + (player.ghostify.milestones > 3 ? "." : ", but lose all your " + color + " quarks.")
+		document.getElementById(color + "QuarkSpin").textContent = shortenMoney(branch.spin)
+		document.getElementById(color + "UnstableQuarks").textContent = shortenMoney(branch.quarks)
+		document.getElementById(color + "QuarksDecayRate").textContent = branch.quarks.lt(linear) && rate.lt(1) ? "You are losing " + shorten(linear.times(rate)) + " " + name + " per second" : "Their half-life is " + timeDisplayShort(Decimal.div(10,rate), true, 2) + (linear.eq(1) ? "" : " until their amount reaches " + shorten(linear))
+		document.getElementById(color + "QuarksDecayTime").textContent = timeDisplayShort(Decimal.div(10, rate).times(branch.quarks.gt(linear) ? branch.quarks.div(linear).log(2) + 1 : branch.quarks.div(linear)))
 		let ret = getQuarkSpinProduction(shorthand)
-		document.getElementById(color+"QuarkSpinProduction").textContent = "+" + shortenMoney(ret) + "/s"
+		document.getElementById(color + "QuarkSpinProduction").textContent = "+" + shortenMoney(ret) + "/s"
 		if (branchNum == c + 1) {
 			var decays = getRadioactiveDecays(shorthand)
 			var power = Math.floor(getBU1Power(shorthand) / 120 + 1)			
-			document.getElementById(color+"UpgPow1").textContent = decays || power > 1 ? shorten(Decimal.pow(2, (1 + decays * .1) / power)) : 2
-			document.getElementById(color+"UpgSpeed1").textContent = decays > 2 || power > 1 ? shorten(Decimal.pow(2, Math.max(.8 + decays * .1, 1) / power)) : 2
+			document.getElementById(color + "UpgPow1").textContent = decays || power > 1 ? shorten(Decimal.pow(2, (1 + decays * .1) / power)) : 2
+			document.getElementById(color + "UpgSpeed1").textContent = decays > 2 || power > 1 ? shorten(Decimal.pow(2, Math.max(.8 + decays * .1, 1) / power)) : 2
+			lvl = getBranchUpgLevel(shorthand, 3)
+			let s = getBranchUpg3SoftcapStart()
+			if (lvl >= s) eff = Decimal.pow(4, (Math.sqrt((lvl + 1) / s) - Math.sqrt(lvl / s)) * s).toFixed(2)
+			else eff = "4"
+			document.getElementById(color + "UpgEffDesc").textContent =  " " + eff + "x"
 			for (var u = 1; u < 4; u++) document.getElementById(color + "upg" + u).className = "gluonupgrade " + (branch.spin.lt(getBranchUpgCost(shorthand, u)) ? "unavailablebtn" : shorthand)
 			if (ghostified) document.getElementById(shorthand+"RadioactiveDecay").className = "gluonupgrade "  +(branch.quarks.lt(Decimal.pow(10, Math.pow(2, 50))) ? "unavailablebtn" : shorthand)
 		}
 	} //for loop
 	if (!branchNum) {
-		var start = getLogTotalSpin() > 500 ? "" : "Cost: "
-		var end = getLogTotalSpin() > 500 ? "" : " quark spin"
+		var start = getLogTotalSpin() > 200 ? "" : "Cost: "
+		var end = getLogTotalSpin() > 200 ? "" : " quark spin"
 		for (var u = 1; u <= 8; u++) {
 			var lvl = getTreeUpgradeLevel(u)
 			document.getElementById("treeupg" + u).className = "gluonupgrade " + (canBuyTreeUpg(u) ? shorthands[getTreeUpgradeLevel(u) % 3] : "unavailablebtn")
@@ -56,6 +61,15 @@ function updateTreeOfDecayTab(){
 			document.getElementById("treeupg" + u + "lvl").textContent = getFullExpansion(lvl) + (tmp.tue > 1 ? " -> " + getFullExpansion(Math.floor(lvl * tmp.tue)) : "")
 			document.getElementById("treeupg" + u + "cost").textContent = start + shortenMoney(getTreeUpgradeCost(u)) + " " + colors[lvl % 3] + end
 		}
+		/*
+		if (ghostified){
+			document.getElementById("treeUpgradeEff").textContent = getTreeUpgradeEfficiencyDisplayText()
+			document.getElementById("treeUpgradeEff").style.display = ""
+		} else {
+			document.getElementById("treeUpgradeEff").style.display = "none"
+		} 
+		// This currently isnt working so hm....
+		*/
 		setAndMaybeShow("treeUpgradeEff", ghostified, '"Tree upgrade efficiency: "+(tmp.tue*100).toFixed(1)+"%"')
 		// I want to make it getTreeUpgradeEfficiencyDisplay(), but that doesnt work, so leaveing it out for now
 	}
@@ -68,7 +82,7 @@ function updateTODStuff() {
 		return
 	} else {
 		document.getElementById("todtabbtn").style.display = ""
-		giveAchievement("Do protons decay?")
+		
 	}
 	var colors = ["red", "green", "blue"]
 	var shorthands = ["r", "g", "b"]
@@ -78,10 +92,13 @@ function updateTODStuff() {
 		var branch = tmp.qu.tod[shorthand]
 		var name = getUQName(shorthand)
 		document.getElementById(shorthand+"UQName").textContent = name
+		extra = branch.spin.log10() > 200
+		start = extra ? "" : "Cost: "
+		end = extra ? color : color + " quark spin"
 		for (var b = 1; b < 4; b++) {
 			document.getElementById(color + "upg" + b + "current").textContent = shortenDimensions(getBranchUpgMult(shorthand, b))
-			document.getElementById(color + "upg" + b + "cost").textContent = shortenMoney(getBranchUpgCost(shorthand, b))
-			if (b>1) document.getElementById(color+"UpgName"+b).textContent=name
+			document.getElementById(color + "upg" + b + "cost").textContent = start + shortenMoney(getBranchUpgCost(shorthand, b)) + " " + end
+			if (b > 1) document.getElementById(color + "UpgName" + b).textContent=name
 		}
 		if (ghostified) {
 			document.getElementById(shorthand+"RadioactiveDecay").parentElement.parentElement.style.display = ""
@@ -133,8 +150,9 @@ function getBranchSpeedText(){
 	if (new Decimal(getTreeUpgradeEffect(3)).gt(1)) text += "Tree Upgrade 3: " + shorten(getTreeUpgradeEffect(3)) + "x, "
 	if (new Decimal(getTreeUpgradeEffect(5)).gt(1)) text += "Tree Upgrade 5: " + shorten(getTreeUpgradeEffect(5)) + "x, "
 	if (player.masterystudies.includes("t431")) if (getMTSMult(431).gt(1)) text += "Mastery Study 431: " + shorten(getMTSMult(431)) + "x, "
+	if (tmp.qu.bigRip.active && isBigRipUpgradeActive(19)) text += "19th Big Rip upgrade: " + shorten(tmp.bru[19]) + "x, "
 	if (hasNU(4)) if (tmp.nu[2].gt(1)) text += "Fourth Neutrino Upgrade: " + shorten(tmp.nu[2]) + "x, "
-	if (!tmp.ngp3l) if (player.achievements.includes("ng3p58")) if (player.meta.resets > 1) text += "'Are you currently dying?' reward: " + shorten (Math.sqrt(player.meta.resets + 1)) + "x, "
+	if (!tmp.ngp3l) if (player.achievements.includes("ng3p48")) if (player.meta.resets > 1) text += "'Are you currently dying?' reward: " + shorten (Math.sqrt(player.meta.resets + 1)) + "x, "
 	if (player.ghostify.milestones >= 14) text += "Brave Milestone 14: " + shorten(getMilestone14SpinMult()) + "x, "
 	if (todspeed) if (todspeed > 1) text += "ToD Speed: " + shorten(todspeed) + "x, "
 	if (text == "") return "No multipliers currently"
@@ -147,7 +165,7 @@ function getBranchSpeed() { // idea: when you hold shift you can see where the m
 	if (tmp.qu.bigRip.active && isBigRipUpgradeActive(19)) x = x.times(tmp.bru[19])
 	if (hasNU(4)) x = x.times(tmp.nu[2])
 	if (!tmp.ngp3l) {
-		if (player.achievements.includes("ng3p58")) x = x.times(Math.sqrt(player.meta.resets + 1))
+		if (player.achievements.includes("ng3p48")) x = x.times(Math.sqrt(player.meta.resets + 1))
 	}
 	if (player.ghostify.milestones >= 14) x = x.times(getMilestone14SpinMult())
 	return x
@@ -173,7 +191,7 @@ function getDecayRate(branch) {
 }
 
 function getMilestone14SpinMult(){
-	var logSpin = getLogTotalSpin()
+	var logSpin = getLogTotalSpin() - Math.log10(3) //so at e25 of each it is 10x, not slight over
 	if (logSpin <= 25 || tmp.ngp3l) return 10
 	return Math.pow(logSpin, 2) / 625 * 10
 }
@@ -199,7 +217,10 @@ function getTreeUpgradeCost(upg,add) {
 	if (upg == 2) return Decimal.pow(4, lvl * (lvl + 3) / 2).times(600)
 	if (upg == 3) return Decimal.pow(32, lvl).times(3e9)
 	if (upg == 4) return Decimal.pow(2, lvl + Math.max(lvl - 37, 0) * (lvl - 36) / 2).times(1e12)
-	if (upg == 5) return Decimal.pow(2, lvl + Math.max(lvl - 35, 0) * (lvl - 34) / 2).times(4e12)
+	if (upg == 5) {
+		if (player.achievements.includes("ng3p87")) return Decimal.pow(2, lvl + Math.pow(Math.max(0, lvl - 50), 1.5)).times(4e12)
+		return Decimal.pow(2, lvl + Math.max(lvl - 35, 0) * (lvl - 34) / 2 + Math.pow(Math.max(0, lvl - 50), 1.5)).times(4e12)
+	}
 	if (upg == 6) return Decimal.pow(4, lvl * (lvl + 3) / 2).times(6e22)
 	if (upg == 7) return Decimal.pow(16, lvl * lvl).times(4e22)
 	if (upg == 8) return Decimal.pow(2, lvl).times(3e23)
@@ -225,36 +246,48 @@ function getTreeUpgradeLevel(upg) {
 	return tmp.qu.tod.upgrades[upg] || 0
 }
 
+function getEffectiveTreeUpgLevel(upg){
+	lvl = getTreeUpgradeLevel(upg) * tmp.tue
+	if (upg == 1) if (lvl >= 500) lvl = 500 * Math.pow(lvl / 500,.9)
+	if (upg == 2) if (lvl > 64) lvl = (lvl + 128) / 3
+	if (upg == 5) if (lvl > 500 && !player.achievements.includes("ng3p87")) lvl = Math.sqrt(lvl / 500) * 500
+	if (upg == 7) if (lvl > 100) lvl -= Math.sqrt(lvl) - 10
+	if (upg == 8) if (lvl > 1111) lvl = 1111 + (lvl - 1111) / 2
+	return lvl
+}
+
+function getTotalNumOfToDUpgrades(){
+	let power = 0
+	for (var upg = 1; upg < 9; upg++) power += getTreeUpgradeLevel(upg)
+	return power
+}
+
 function getTreeUpgradeEffect(upg) {
-	let lvl = getTreeUpgradeLevel(upg) * tmp.tue
+	let lvl = getEffectiveTreeUpgLevel(upg)
 	if (upg == 1) {
-		if (lvl >= 500) lvl = 500 * Math.pow(lvl / 500,.9)
 		return Math.floor(lvl * 30)
 	}
 	if (upg == 2) {
-		if (lvl > 64) lvl = (lvl + 128) / 3
 		return lvl * 0.25
 	}
 	if (upg == 3) {
-		if (lvl < 1) return 1
-		let power = 0
-		for (var upg = 1; upg < 9; upg++) power += getTreeUpgradeLevel(upg)
-		return Decimal.pow(2,Math.sqrt(Math.sqrt(Math.max(lvl * 3 - 2, 0)) * Math.max(power - 10, 0)))
+		return Decimal.pow(2, Math.sqrt(Math.sqrt(Math.max(lvl * 3 - 2, 0)) * Math.max(getTotalNumOfToDUpgrades() - 10, 0)))
 	}
-	if (upg == 4) return Math.sqrt(1 + Math.log10(lvl * 0.5 + 1) * 0.1)
+	if (upg == 4) {
+		return Math.sqrt(1 + Math.log10(lvl * 0.5 + 1) * 0.1)
+	}
 	if (upg == 5) {
-		if (lvl > 500) lvl += Math.sqrt(lvl + 125) - 25
-		return Math.pow(Math.log10(player.meta.bestOverQuantums.add(1).log10() + 1) / 5 + 1, Math.sqrt(lvl))
+		let MA = player.meta.bestOverQuantums
+		if (player.achievements.includes("ng3p87")) MA = MA.plus(player.meta.bestOverGhostifies)
+		return Math.pow(Math.log10(MA.add(1).log10() + 1) / 5 + 1, Math.sqrt(lvl))
 	}
 	if (upg == 6) {
 		return Decimal.pow(2, lvl)
 	}
 	if (upg == 7) {
-		if (lvl > 100) lvl -= Math.sqrt(lvl) - 10
 		return Decimal.pow(player.replicanti.amount.max(1).log10() + 1, 0.25 * lvl)
 	}
 	if (upg == 8) {
-		if (lvl > 1111) lvl = 1111 + (lvl - 1111) / 2
 		return Math.log10(Decimal.add(player.meta.bestAntimatter, 1).log10() + 1) / 4 * Math.sqrt(lvl)
 	}
 	return 0
@@ -282,9 +315,11 @@ function buyBranchUpg(branch, upg) {
 	bData.spin = bData.spin.sub(getBranchUpgCost(branch, upg))
 	if (bData.upgrades[upg] == undefined) bData.upgrades[upg] = 0
 	bData.upgrades[upg]++
-	var end = (upg == 3 && getBranchUpgLevel(branch, upg) > 1000) ? " (softcapped)" : ""
-	document.getElementById(colors[branch] + "upg" + upg + "current").textContent = shortenDimensions(getBranchUpgMult(branch, upg)) + end
-	document.getElementById(colors[branch] + "upg" + upg + "cost").textContent = shortenMoney(getBranchUpgCost(branch, upg))
+	extra = bData.spin.log10() > 200
+	start = extra ? "" : "Cost: "
+	end = extra ? colors[branch] : colors[branch] + " quark spin"
+	document.getElementById(colors[branch] + "upg" + upg + "current").textContent = shortenDimensions(getBranchUpgMult(branch, upg))
+	document.getElementById(colors[branch] + "upg" + upg + "cost").textContent = start + shortenMoney(getBranchUpgCost(branch, upg)) + " " + end
 }
 
 function getBranchUpgLevel(branch,upg) {
@@ -318,8 +353,20 @@ function getUQName(shorthand) {
 	let ret = "unstable"
 	if (tmp.qu.tod[shorthand].decays !== undefined) {
 		let amt = tmp.qu.tod[shorthand].decays
-		if (amt > 4) ret = "ghostly" + (amt > 9 ? "^" + Math.floor(amt / 5) : "") + " " + ret
-		if (amt % 5) ret = (["radioactive", "infinity", "eternal", "quantum"])[amt % 5 - 1] + " " + ret
+		if (amt < 55) {
+			if (amt > 4) ret = "ghostly" + (amt > 9 ? "^" + Math.floor(amt / 5) : "") + " " + ret
+			if (amt % 5) ret = (["radioactive", "infinity", "eternal", "quantum"])[amt % 5 - 1] + " " + ret
+		} else if (amt < 110) {
+			amt -= 50
+			if (amt > 4) ret = "disappearing" + (amt > 9 ? "^" + Math.floor(amt / 5) : "") + " " + ret
+			if (amt % 5) ret = (["radioactive", "infinity", "eternal", "quantum"])[amt % 5 - 1] + " " + ret
+		} else if (amt < 165) {
+			amt -= 105
+			if (amt > 4) ret = "reappearing" + (amt > 9 ? "^" + Math.floor(amt / 5) : "") + " " + ret
+			if (amt % 5) ret = (["radioactive", "infinity", "eternal", "quantum"])[amt % 5 - 1] + " " + ret
+		} else {
+			ret = "unstable^" + amt
+		}
 	}
 	return ret
 }
@@ -388,9 +435,11 @@ function maxBranchUpg(branch, weak) {
 			bData.upgrades[u] += toAdd
 		}
 		if (bData.upgrades[u] > oldLvl) {
-			var end = (u == 3 && getBranchUpgLevel(branch, u) > 1000) ? " (softcapped)" : ""
-			document.getElementById(colors[branch] + "upg" + u + "current").textContent=shortenDimensions(getBranchUpgMult(branch, u)) + end
-			document.getElementById(colors[branch] + "upg" + u + "cost").textContent=shortenMoney(getBranchUpgCost(branch, u))
+			document.getElementById(colors[branch] + "upg" + u + "current").textContent=shortenDimensions(getBranchUpgMult(branch, u))
+			extra = bData.spin.log10() > 200
+			start = extra ? "" : "Cost: "
+			end = extra ? colors[branch] : colors[branch] + " quark spin"
+			document.getElementById(colors[branch] + "upg" + u + "cost").textContent = start + shortenMoney(getBranchUpgCost(branch, u)) + " " + end
 		}
 	}
 }
@@ -405,8 +454,12 @@ function radioactiveDecay(shorthand) {
 	data.decays = data.decays === undefined ? 1 : data.decays + 1
 	let sum = 0
 	for (var c = 0; c < 3; c++) sum += getRadioactiveDecays((['r', 'g', 'b'])[c])
-	if (sum > 9) giveAchievement("Radioactive Decaying to the max!")
 	updateTODStuff()
+}
+
+
+function getTotalRadioactiveDecays(){
+	return getRadioactiveDecays('g') + getRadioactiveDecays('b') + getRadioactiveDecays('r')
 }
 
 function getRadioactiveDecays(shorthand) {
@@ -476,12 +529,17 @@ function getBU2Power(branch) {
 	return x
 }
 
+function getBranchUpg3SoftcapStart(){
+	return 1000 //maybe later on we can have things buff this
+}
+
 function getBranchUpgMult(branch, upg) {
 	if (upg == 1) return Decimal.pow(2, getBU1Power(branch) * (getRadioactiveDecays(branch) / 10 + 1))
 	else if (upg == 2) return Decimal.pow(2, getBU2Power(branch))
 	else if (upg == 3) {
 		l = getBranchUpgLevel(branch, 3)
-		if (l > 1000) l = 1000 * Math.sqrt(l / 1000)
+		let s = getBranchUpg3SoftcapStart()
+		if (l > s) l = s * Math.sqrt(l / s)
 		return Decimal.pow(4, l)
 	}
 } 

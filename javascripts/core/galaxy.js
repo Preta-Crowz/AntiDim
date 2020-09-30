@@ -22,8 +22,6 @@ function galaxyReset(bulk) {
 	setInitialDimensionPower();
 	
 	if (player.options.notation == "Emojis") player.spreadingCancer += bulk
-	if (player.spreadingCancer >= 10 && !player.achievements.includes("r41")) giveAchievement("Spreading Cancer")
-	if (player.spreadingCancer >= 1000000) giveAchievement("Cancer = Spread")
 	if (player.achievements.includes("r36")) player.tickspeed = player.tickspeed.times(0.98);
 	if (player.achievements.includes("r45")) player.tickspeed = player.tickspeed.times(0.98);
 	if (player.achievements.includes("r83")) player.tickspeed = player.tickspeed.times(Decimal.pow(0.95, player.galaxies));
@@ -37,13 +35,8 @@ function galaxyReset(bulk) {
 			document.getElementById("gConfirmation").style.display = "inline-block"
 		}
 	}
-	if (player.galaxies >= 50 && !player.achievements.includes("r83")) giveAchievement("YOU CAN GET 50 GALAXIES!??")
-	if (player.galaxies >= 2 && !player.achievements.includes("r27")) giveAchievement("Double Galaxy");
-	if (player.galaxies >= 1 && !player.achievements.includes("r26")) giveAchievement("You got past The Big Wall");
 	if (!player.achievements.includes("r111")) setInitialMoney()
 	if (player.achievements.includes("r66")) player.tickspeed = player.tickspeed.times(0.98);
-	if (player.galaxies >= 540 && player.replicanti.galaxies == 0) giveAchievement("Unique snowflakes")
-	if (!player.achievements.includes("ngpp18")) checkUniversalHarmony()
 	if (tmp.ngp3 && bulk) {
 		if (tmp.qu.autoOptions.sacrifice) sacrificeGalaxy(6, true)
 		if (tmp.qu.bigRip.active) tmp.qu.bigRip.bestGals = Math.max(tmp.qu.bigRip.bestGals, player.galaxies)
@@ -103,7 +96,7 @@ function getGalaxyRequirement(offset = 0, display) {
 		if (tmp.grd.galaxies >= distantStart) {
 			let speed = tmp.grd.speed
 			if (GUBought("rg6")) speed *= 0.867
-			if (GUBought("gb6")) speed /= 1 + Math.pow(player.infinityPower.max(1).log10(), 0.25) / 2810
+			if (GUBought("gb6")) speed /= 1 + Math.pow(player.infinityPower.plus(1).log10(), 0.25) / 2810
 			if (GUBought("br6")) speed /= 1 + player.meta.resets / 340
 			if (ghostified && player.ghostify.neutrinos.boosts > 5) speed /= tmp.nb[6]
 			if (hasBosonicUpg(45)) speed /= tmp.blu[45]

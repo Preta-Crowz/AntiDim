@@ -26,29 +26,20 @@ function softReset(bulk, tier=1) {
 	var oldResets = player.resets
 	player.resets += bulk;
 	if (player.masterystudies) if (player.resets > 4) player.old = false
-	if (player.resets >= 10) giveAchievement("Boosting to the max");
 	if (inNC(14) && player.tickspeedBoosts == undefined) player.tickBoughtThisInf.pastResets.push({resets: player.resets, bought: player.tickBoughtThisInf.current})
 	if (tmp.ngp3 && getEternitied() >= 1e9 && player.dilation.upgrades.includes("ngpp6") && tier < 2) {
 		skipResets()
 		player.matter = new Decimal(0)
 		player.postC8Mult = new Decimal(1)
-		if (player.currentEternityChall == 'eterc13') return
-		var temp = getDimensionBoostPower()
-		var temp2 = getDimensionPowerMultiplier()
-		if (player.dbPower != undefined && !isNaN(break_infinity_js ? player.dbPower : player.dbPower.logarithm)) for (var tier = 1; tier <= 8; tier++) {
-			var dimPow = player[TIER_NAMES[tier] + 'Pow'].div(player.dbPower.pow(Math.max(oldResets + 1 - tier,0)))
-			if (!inNC(9) && player.currentChallenge != "postc1") dimPow = Decimal.pow(temp2, Math.floor(player[TIER_NAMES[tier] + 'Bought'] / 10)).max(dimPow)
-			player[TIER_NAMES[tier] + 'Pow'] = temp.pow(Math.max(player.resets + 1 - tier, 0)).times(dimPow)
-		}
-		player.dbPower = temp
+		player.dbPower = getDimensionBoostPower()
 		return
 	}
 	var costs = [10, 100, 1e4, 1e6, 1e9, 1e13, 1e18, 1e24]
-	var costMults=[1e3, 1e4, 1e5, 1e6, 1e8, 1e10, 1e12, 1e15]
+	var costMults = [1e3, 1e4, 1e5, 1e6, 1e8, 1e10, 1e12, 1e15]
 	if (inNC(10) || player.currentChallenge == "postc1") costs = [10, 100, 100, 500, 2500, 2e4, 2e5, 4e6]
 	if (inNC(10)) costMults = [1e3, 5e3, 1e4, 12e3, 18e3, 26e3, 32e3, 42e3]
 	for (var d = 1; d < 9; d++) {
-		var name=TIER_NAMES[d]
+		var name = TIER_NAMES[d]
 		player[name + "Amount"] = new Decimal(0)
 		player[name + "Bought"] = 0
 		player[name + "Cost"] = new Decimal(costs[d - 1])
@@ -101,7 +92,7 @@ function softReset(bulk, tier=1) {
 function setInitialMoney() {
 	var x = 10
 	if (player.challenges.includes("challenge1")) x = 100
-	if (player.aarexModifications.ngmX>3) x = 200
+	if (player.aarexModifications.ngmX > 3) x = 200
 	if (player.achievements.includes("r37")) x = 1000
 	if (player.achievements.includes("r54")) x = 2e5
 	if (player.achievements.includes("r55")) x = 1e10
@@ -112,8 +103,6 @@ function setInitialMoney() {
 function setInitialDimensionPower() {
 	var dimensionBoostPower = getDimensionBoostPower()
 	if (tmp.ngp3 && getEternitied() >= 1e9 && player.dilation.upgrades.includes("ngpp6")) player.dbPower = dimensionBoostPower
-
-	for (var tier = 1; tier < 9; tier++) player[TIER_NAMES[tier] + 'Pow'] = dimensionBoostPower.pow(Math.max(player.resets + 1 - tier, 0))
 
 	var tickspeedPower = player.totalTickGained
 	if (player.infinityUpgradesRespecced!=undefined) tickspeedPower += player.infinityUpgradesRespecced[1] * 10
@@ -198,7 +187,7 @@ function getShiftRequirement(bulk) {
 	if (player.challenges.includes("postc5")) amount -= 1
 	if (player.infinityUpgradesRespecced != undefined) amount -= getInfUpgPow(4)
 
-	return {tier: tier, amount: amount, mult: mult };
+	return {tier: tier, amount: amount, mult: mult};
 }
 
 function getDimboostCostIncrease () {

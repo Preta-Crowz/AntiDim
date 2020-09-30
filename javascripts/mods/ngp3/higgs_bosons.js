@@ -8,13 +8,14 @@ function setupHiggsSave() {
 }
 
 function unlockHiggs() {
-	if (tmp.ngp3l) return //higgs isnt a thing in legacy mode
+	if (tmp.ngp3l) { // higgs isn't a thing in legacy mode
+		return
+	} 
 	if (player.ghostify.hb.unl) return
 	if (!player.ghostify.wzb.unl) return
 	if (!canUnlockHiggs()) return
 	$.notify("Congratulations! You have unlocked Higgs Bosons!", "success")
 	player.ghostify.hb.unl = true
-	giveAchievement("The Holy Particle")
 	updateHiggsUnlocks()
 }
 
@@ -23,6 +24,11 @@ function canUnlockHiggs() {
 }
 
 function updateHiggsUnlocks() {
+	if (tmp.ngp3l) {
+		document.getElementById("nextParticle").style.display = "none"
+		document.getElementById("bosonicResets").style.display = "none"
+		return
+	}
 	let unl = player.ghostify.hb.unl
 	document.getElementById("nextParticle").style.display = unl ? "none" : ""
 	document.getElementById("bosonicResets").style.display = unl ? "" : "none"
@@ -43,7 +49,7 @@ function bosonicLabReset() {
 	player.ghostify.ghostlyPhotons.ghostlyRays = new Decimal(0)
 	player.ghostify.ghostlyPhotons.lights = [0,0,0,0,0,0,0,0]
 	tmp.updateLights = true
-	var startingEnchants = tmp.bEn[14].bUpgs
+	var startingEnchants = tmp.bEn[14] ? tmp.bEn[14].bUpgs : 0
 	player.ghostify.bl = {
 		watt: new Decimal(0),
 		ticks: player.ghostify.bl.ticks,
@@ -93,7 +99,6 @@ function higgsReset() {
 	if (!player.aarexModifications.higgsNoConf && !confirm("You will exchange all your Bosonic Lab stuff for Higgs Bosons. Everything that Light Empowerments resets initally will be reset. Are you ready to proceed?")) return
 	addHiggs(getHiggsGain())
 	bosonicLabReset()
-	giveAchievement("The Holy Particle")
 	if (oldHiggs == 0) {
 		updateNeutrinoBoosts()
 		updateHiggsUnlocks()

@@ -36,9 +36,8 @@ function hideMaxIDButton(onLoad=false) {
 		hide = false
 		if (player.eternities > 17) {
 			for (var d = 0; d < 8; d++) {
-				if (player.infDimBuyers[d]) {
-					if (d > 6) hide = true
-				} else break
+				if (player.infDimBuyers[d] && d > 6) hide = true
+				else break
 			}
 		}
 	}
@@ -120,7 +119,7 @@ function getStartingIDPower(tier){
 	if (mult.gt(1)){
 		var log = mult.log10()
 		log = softcap(log, "idbase")
-		mult = Decimal.pow(10,log)
+		mult = Decimal.pow(10, log)
 	}
 	return mult
 }
@@ -129,7 +128,7 @@ function DimensionPower(tier) {
   	var dim = player["infinityDimension" + tier]
   	if (player.currentEternityChall == "eterc2" || player.currentEternityChall == "eterc10" || player.currentEternityChall == "eterc13") return new Decimal(0)
   	if (player.currentEternityChall == "eterc11") return new Decimal(1)
-  	if (player.currentEternityChall=='eterc14') return getIDReplMult()
+  	if (player.currentEternityChall == 'eterc14') return getIDReplMult()
   	if (inQC(3)) return getExtraDimensionBoostPower()
   	
 	var mult = getStartingIDPower(tier)
@@ -264,15 +263,16 @@ function getInfinityPowerEffect() {
 
 function getInfinityPowerEffectExp() {
 	let x = 7
+	let galaxies = Math.max(player.galaxies, 0)
 	if (player.galacticSacrifice != undefined) {
-		x = Math.pow(player.galaxies, 0.7)
-		if (player.currentChallenge=="postcngm3_2" || (player.tickspeedBoosts != undefined && player.currentChallenge == "postc1")) {
+		x = Math.pow(galaxies, 0.7)
+		if (player.currentChallenge === "postcngm3_2" || (player.tickspeedBoosts != undefined && player.currentChallenge === "postc1")) {
 			if (player.aarexModifications.ngmX >= 4) {
-				x = Math.pow(player.galaxies, 1.25)
+				x = Math.pow(galaxies, 1.25)
 				if (x > 7) x += 1
-			} else x = player.galaxies
+			} else x = galaxies
 		}
-		else if (player.challenges.includes("postcngm3_2")) x = Math.pow(player.galaxies + (player.resets + player.tickspeedBoosts) / 30, 0.7)
+		else if (player.challenges.includes("postcngm3_2")) x = Math.pow(galaxies + (player.resets + player.tickspeedBoosts) / 30, 0.7)
 		x = Math.max(x , 7)
 	}
 	if (x > 100) x = 50 * Math.log10(x)
@@ -341,5 +341,34 @@ function getEU3Mult() {
 	return Decimal.pow(2, 300 / Math.max(infchallengeTimes, 6.1))
 }
 
+function updateInfPower() {
+	document.getElementById("infPowAmount").textContent = shortenMoney(player.infinityPower)
+	if (player.galacticSacrifice && player.pSac == undefined) document.getElementById("infPowEffectPower").textContent = tmp.infPowExp.toFixed(2)
+	document.getElementById("infDimMultAmount").textContent = shortenMoney(tmp.infPow)
+	if (player.currentEternityChall == "eterc7") document.getElementById("infPowPerSec").textContent = "You are getting " +shortenDimensions(DimensionProduction(1))+" Seventh Dimensions per second."
+	else {
+		let r = DimensionProduction(1)
+		if (player.pSac != undefined) r = r.div(getEC12Mult())
+		document.getElementById("infPowPerSec").textContent = "You are getting " + shortenDimensions(r) + " Infinity Power per second."
+	}
+}
 
+function getNewInfReq() {
+	let reqs = [new Decimal("1e1100"), new Decimal("1e1900"), new Decimal("1e2400"), new Decimal("1e10500"), new Decimal("1e30000"), new Decimal("1e45000"), new Decimal("1e54000")]
+	if (player.galacticSacrifice !== undefined) {
+		if (player.tickspeedBoosts === undefined) {
+			reqs[1] = new Decimal("1e1500")
+			reqs[3] = new Decimal("1e9600")
+		} else {
+			reqs[0] = new Decimal("1e1800")
+			reqs[1] = new Decimal("1e2400")
+			reqs[2] = new Decimal("1e4000")
+		}
+		if (player.aarexModifications.ngmX >= 4){
+			reqs[0] = new Decimal("1e1777")
+		}
+	}
+	for (var tier = 0; tier < 7; tier++) if (!player.infDimensionsUnlocked[tier]) return {money: reqs[tier], tier: tier+1}
+	return {money: new Decimal("1e60000"), tier: 8}
+}
 
