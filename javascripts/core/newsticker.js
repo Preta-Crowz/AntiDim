@@ -416,7 +416,7 @@ newsArray = [//always true
 document.addEventListener("visibilitychange", function() {if (!document.hidden) {scrollNextMessage();}}, false);
 var scrollTimeouts = [];
 var nextMsgIndex;
-function scrollNextMessage() {
+function scrollNextMessage(id) {
         //don't run if hidden to save performance
         if (typeof (player) == "undefined") return
         if (player.options.newsHidden) return false
@@ -424,11 +424,22 @@ function scrollNextMessage() {
         updateNewsArray();
         tmp.blankedOut = false
         
-        //select a message at random
-        try {
-                do {nextMsgIndex = Math.floor(Math.random() * newsArray.length)} while (!eval(newsArray[nextMsgIndex][1]) || (newsArray[nextMsgIndex][2].indexOf("am") > -1 && !player.achievements.includes("r22")))
-        } catch(e) {
-                console.log("Newsarray doesn't work at idx " + nextMsgIndex)
+        if(id !== undefined){
+            for(i in newsArray){
+                if(newsArray[i] && newsArray[i][2] == id){
+                    nextMsgIndex = i;
+                    break;
+                }
+            }
+        }
+
+        if(id === undefined){
+            //select a message at random
+            try {
+                    do {nextMsgIndex = Math.floor(Math.random() * newsArray.length)} while (!eval(newsArray[nextMsgIndex][1]) || (newsArray[nextMsgIndex][2].indexOf("am") > -1 && !player.achievements.includes("r22")))
+            } catch(e) {
+                    console.log("Newsarray doesn't work at idx " + nextMsgIndex)
+            }
         }
         scrollTimeouts.forEach(function(v) {clearTimeout(v);});
         scrollTimeouts = [];
