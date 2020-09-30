@@ -697,12 +697,6 @@ if (typeof define == 'function' && define.amd) {
 	return Decimal;
 });
 
-//Used from Patashu's break_infinity.js (and credited the author too, https://github.com/Patashu/break_infinity.js)
-if (typeof define == 'function' && define.amd) {
-    define(function () {
-    return Decimal;
-});
-
 // Node and other environments that support module.exports.
 } else if (typeof module != 'undefined' && module.exports) {
     module.exports = Decimal;
