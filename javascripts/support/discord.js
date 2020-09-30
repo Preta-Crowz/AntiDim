@@ -62,7 +62,7 @@ function getMainMod(){
 
 function isOnChallenge(){
     if(!global.player) return false;
-    return (player.currentChallenge != "") || (player.currentEternityChall != "")
+    return (player.currentChallenge != "") || (player.currentEternityChall != "") || (player.quantum.challenge.length > 0)
 }
 
 function getLevel(){
@@ -77,26 +77,27 @@ function getLevel(){
                 return "Ghostify";
             case player.quantum.breakEternity.unlocked:
                 return "Break Eternity";
-            case player.quantum.bigRip.times > 0:
+            case player.masterystudies.indexOf("d14") != -1:
                 return "Big Rip";
-            case player.quantum.tod.upgrades > 0:
+            case player.masterystudies.indexOf("d13") != -1:
                 return "Tree of Decay";
-            case player.quantum.nanofield.antienergy > 0:
+            case player.masterystudies.indexOf("d12") != -1:
                 return "Nanofield";
-            case player.quantum.emperorDimensions[1].workers > 0:
+            case player.masterystudies.indexOf("d11") != -1:
                 return "Emperor Dimensions";
-            case player.quantum.replicants.amount > 0:
+            case player.masterystudies.indexOf("d10") != -1:
                 return "Replicants";
-            // QC will be buggy because I didn't find other way to get list
-            case Object.keys(player.quantum.challengeRecords).length > 1:
+            case player.masterystudies.indexOf("d9") != -1:
+                return "Paired Challenges";
+            case player.masterystudies.indexOf("d8") != -1:
                 return "Quantum Challenges";
-            case player.quantum.electrons.sacGals > 0:
+            case player.masterystudies.indexOf("d7") != -1:
                 return "Electrons"
             case player.quantum.reached:
                 return "Quantum";
             case player.masterystudies.length > 0:
                 return "Mastery Studies";
-            case player.meta[1].amount > 0:
+            case player.dilation.studies.indexOf(6) != -1:
                 return "Meta Dimensions";
         }
     }
@@ -124,10 +125,25 @@ function getLevel(){
 };
 
 function getChall(){
-    if(player.currentChallenge !== ""){
+    if(getModsArray().indexOf("ngp3") + 1){
+        if(player.quantum.challenge.length > 0)
+            switch(player.quantum.challenge.length){
+                case 1:
+                    return "QC" + player.quantum.challenge[0];
+                case 2:
+                    return "QC" + player.quantum.challenge[0] + "&" + player.quantum.challenge[1];
+            }
+    }
+
+
+    if(player.currentEternityChall !== "")
         switch(true){
             case player.currentEternityChall.substr(0,5) == "eterc":
                 return "EC" + player.currentEternityChall.substr(5);
+        }
+
+    if(player.currentChallenge !== ""){
+        switch(true){
             case player.currentChallenge.substr(0,5) == "postc":
                 return "IC" + player.currentChallenge.substr(5);
             case player.currentChallenge.substr(0,9) == "challenge":
