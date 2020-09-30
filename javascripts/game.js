@@ -1761,6 +1761,9 @@ document.getElementById("news").onclick = function () {
 		startInterval()
 		giveAchievement("Lie the news")
 	}
+    if(document.getElementById("news").textContent === "You found a cat.") {
+        alert("You patted the cat.")
+    }
 };
 
 document.getElementById("game").onclick = function () {

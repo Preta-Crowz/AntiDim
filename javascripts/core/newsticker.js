@@ -338,8 +338,14 @@ newsArray = [//always true
 ['The further meta you reach, the further power tower you go.', true, "am185"],
 ['Later, I will finally implement original ideas from future NG+3 updates.', "tmp.ngp3", "am186"],
 ['Also later, I will implement ideas that have different gameplay than other mechanics.', "tmp.ngp3", "am187"],
-["This news ticker has been softcapped so you can't read the re-.", true, "am188"]
+["This news ticker has been softcapped so you can't read the re-.", true, "am188"],
 /*NEXT ID: am189*/
+
+//Electron!
+["Cat says meow, then anti-cat says woem?", true, "nk1"],
+["(The news was taken by cat)", true, "nk2"],
+["Try offline.", true, "nk3"],
+["You found a cat.", true, "nk4"]
 ];}
 
 document.addEventListener("visibilitychange", function() {if (!document.hidden) {scrollNextMessage();}}, false);
