@@ -425,15 +425,18 @@ function scrollNextMessage(id) {
         tmp.blankedOut = false
         
         if(id !== undefined){
+            nextMsgIndex = -1;
             for(i in newsArray){
                 if(newsArray[i] && newsArray[i][2] == id){
                     nextMsgIndex = i;
                     break;
                 }
             }
-        }
-
-        if(id === undefined){
+            if(newsArray[nextMsgIndex] === undefined){
+                scrollNextMessage();
+                return;
+            }
+        } else {
             //select a message at random
             try {
                     do {nextMsgIndex = Math.floor(Math.random() * newsArray.length)} while (!eval(newsArray[nextMsgIndex][1]) || (newsArray[nextMsgIndex][2].indexOf("am") > -1 && !player.achievements.includes("r22")))
