@@ -448,13 +448,17 @@ function scrollNextMessage(id) {
         scrollTimeouts = [];
         
         //set the text
-        var m = newsArray[nextMsgIndex][0];
-        if (newsArray[nextMsgIndex][2] == "am37") {
+        var target = newsArray[nextMsgIndex];
+        if (target === undefined){
+            scrollNextMessage();
+            return;
+        }
+        if (target[2] == "am37") {
                 //coded by Naruyoko
                 var m = ""
                 for (var i = 0; i < 256; i++) m += String.fromCharCode(Math.random() * 95 + 32);
-        }
-        s.textContent = m
+                s.textContent = m;
+        } else s.textContent = target[0];
         
         //get the parent width so we can start the message beyond it
         let parentWidth = s.parentElement.clientWidth;
