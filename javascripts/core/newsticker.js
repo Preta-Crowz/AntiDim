@@ -562,19 +562,38 @@ ghostlyNewsArray = [//Ghostly news ticker messages
 ];}
 
 var ghostlyNewsTickerCache = false
-function nextGhostlyNewsTickerMsg() {
+function nextGhostlyNewsTickerMsg(id) {
 	if (ghostlyNewsTickerCache) return
 	ghostlyNewsTickerCache = true
 	giveAchievement("News for other species")
 	updateGhostlyNewsArray()
 	tmp.blankedOut2=false
-	try {
-		do {ghostlyNewsIndex = Math.floor(Math.random() * ghostlyNewsArray.length)} while (!eval(ghostlyNewsArray[ghostlyNewsIndex][1]))
-	} catch(e) {
-		console.log("Newsarray doesn't work at idx " + ghostlyNewsIndex)
-	}
+    if(id !== undefined){
+        ghostlyNewsIndex = -1;
+        for(i in ghostlyNewsArray){
+            if(ghostlyNewsArray[i] && ghostlyNewsArray[i][2] == id){
+                ghostlyNewsIndex = i;
+                break;
+            }
+        }
+        if(ghostlyNewsArray[ghostlyNewsIndex] === undefined){
+            nextGhostlyNewsTickerMsg();
+            return;
+        }
+    } else {
+    	try {
+    		do {ghostlyNewsIndex = Math.floor(Math.random() * ghostlyNewsArray.length)} while (!eval(ghostlyNewsArray[ghostlyNewsIndex][1]))
+    	} catch(e) {
+    		console.log("Newsarray doesn't work at idx " + ghostlyNewsIndex)
+    	}
+    }
+    var target = ghostlyNewsArray[ghostlyNewsIndex];
+    if (target === undefined){
+        nextGhostlyNewsTickerMsg();
+        return;
+    }
 	var newsText = document.getElementById("ghostlyNewsTickerText")
-	newsText.textContent = ghostlyNewsArray[ghostlyNewsIndex][0]
+	newsText.textContent = target[0]
 	newsText.innerHTML = "<b>NEWS!</b> " + newsText.innerHTML
 	newsText.style.left = "100%"
 	newsText.style["transition-duration"] = "0s"
@@ -588,7 +607,7 @@ function nextGhostlyNewsTickerMsg() {
 			newsText.style["transition-timing-function"] = "linear"
 			newsText.style["transition-duration"] = (duration / 100) + "s"
 			setTimeout(function() {
-				if (ghostlyNewsArray[ghostlyNewsIndex][2] == "gn32") {
+				if (target[2] == "gn32") {
 					tmp.blankedOut2 = true
 					setTimeout(function() {
 						ghostlyNewsTickerCache = false
